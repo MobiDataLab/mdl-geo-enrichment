@@ -33,7 +33,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/api/v1/navitia")
 public class JourneyController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JourneyController.class);
 
     @Autowired
     private NavitiaService navitiaService;
@@ -107,7 +107,7 @@ public class JourneyController {
 
                     eltBusStop.ifPresent(element -> {
                         if (!StringUtils.isBlank(element.getTags().getWheelchair())) {
-                            stopPoint.getAdditionalProperties().put("weelchair", element.getTags().getWheelchair());
+                            stopPoint.getAdditionalProperties().put("wheelchair", element.getTags().getWheelchair());
                             LOGGER.debug("bus stop : " + element.getTags().getName() + " v" + element.getVersion() + " is close to: " + stopPoint.getName());
                         }
                     });
