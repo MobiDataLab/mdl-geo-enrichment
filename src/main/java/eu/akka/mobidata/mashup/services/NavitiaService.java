@@ -28,9 +28,9 @@ import java.net.URLDecoder;
 public class NavitiaService {
 
     private static final String API_LINES = "/coverage/sandbox/lines?from=1.3951577;43.5690569&to=1.4803165;43.6283803";
-    private static final String API_JOURNEYS = "/journeys?from=1.3951577;43.5690569&to=1.4803165;43.6283803";
+    private static final String API_JOURNEYS = "/journeys?from=1.3951577;43.5690569&to=1.4803165;43.6283803&allowed_id[]=physical_mode:Bus";
 
-    private static Logger LOGGER = LoggerFactory.getLogger(NavitiaService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaService.class);
 
     @Autowired
     private EndPointConfig endPointConfig;
@@ -44,7 +44,7 @@ public class NavitiaService {
     @Bean(name = "NavRestTemplate")
     public RestTemplate NavRestTemplate(RestTemplateBuilder builder) {
         return builder.rootUri(endPointConfig.getNavitiaUri())
-                .additionalInterceptors((ClientHttpRequestInterceptor) (request, body, execution) -> {
+                .additionalInterceptors((request, body, execution) -> {
                     // it seems user token does not have enough permissions to interact with sandbox apis, we use the provided documentation's token instead
                     String token = request.getURI().getPath().contains("sandbox") ? tokenConfig.getNavitiaDocToken() : tokenConfig.getNavitiaUserToken();
                     request.getHeaders().add("Authorization", token);
