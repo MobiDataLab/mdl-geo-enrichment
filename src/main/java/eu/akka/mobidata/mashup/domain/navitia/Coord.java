@@ -20,29 +20,29 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class Coord {
 
     @JsonProperty("lat")
-    private String lat;
+    private Double lat;
     @JsonProperty("lon")
-    private String lon;
+    private Double lon;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("lat")
-    public String getLat() {
+    public Double getLat() {
         return lat;
     }
 
     @JsonProperty("lat")
-    public void setLat(String lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
     @JsonProperty("lon")
-    public String getLon() {
+    public Double getLon() {
         return lon;
     }
 
     @JsonProperty("lon")
-    public void setLon(String lon) {
+    public void setLon(Double lon) {
         this.lon = lon;
     }
 

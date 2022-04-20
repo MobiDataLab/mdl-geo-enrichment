@@ -24,12 +24,12 @@ public class OsmService {
 
     private static final String API_BUS_STOPS = "/interpreter?data=[out:json];node[highway=bus_stop](43.5690569,1.3951577,43.6283803,1.4803165);out%20meta;";
 
-    private static Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
 
     @Autowired
     private EndPointConfig endPointConfig;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     /**
      * Finds and returns bus stops.
@@ -43,6 +43,7 @@ public class OsmService {
             String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), "UTF-8");
             Object navObject = restTemplate.getForObject(url, Object.class);
 
+            //@TODO convert osm to geojson
             return new ObjectMapper().convertValue(navObject, OsmContainer.class);
         } catch (RestClientException | UnsupportedEncodingException e) {
             LOGGER.error(e.getMessage());
