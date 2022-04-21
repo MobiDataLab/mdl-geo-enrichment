@@ -1,8 +1,10 @@
 package eu.akka.mobidata.mashup.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
+import eu.akka.mobidata.mashup.util.OsmTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Service communicating with the OpenStreetMap API
@@ -40,14 +43,17 @@ public class OsmService {
     public OsmContainer findBusStops() {
         LOGGER.debug("baseURI: {}", endPointConfig.getOverpassUri());
         try {
-            String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), "UTF-8");
+            String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), StandardCharsets.UTF_8);
             Object navObject = restTemplate.getForObject(url, Object.class);
 
-            //@TODO convert osm to geojson
+            String stdout = OsmTools.convertOsmToGeoJson(new Gson().toJson(navObject));
+            //@TODO use geojson format instead of osm
+
             return new ObjectMapper().convertValue(navObject, OsmContainer.class);
-        } catch (RestClientException | UnsupportedEncodingException e) {
+        } catch (RestClientException | IOException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
+
 }
