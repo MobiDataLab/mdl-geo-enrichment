@@ -32,7 +32,7 @@ public class LineController {
         // Get lines from Navitia
         NavitiaContainer lines = navitiaService.findLines();
         if (lines == null) {
-            throw new MobilityDataNotFoundException();
+            throw new MobilityDataNotFoundException("No Navitia lines found!");
         }
         return lines;
     }

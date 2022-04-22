@@ -3,6 +3,11 @@ package eu.akka.mobidata.mashup.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Handles the proxy configuration.
+ *
+ * @author Mohamed.KARAMI
+ */
 @Configuration
 @ConfigurationProperties(prefix = "proxy")
 public class ProxyConfig {

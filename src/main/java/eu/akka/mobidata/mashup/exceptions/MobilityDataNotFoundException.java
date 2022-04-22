@@ -6,13 +6,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Not found!")
 public class MobilityDataNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;
+    private final String message;
 
-    public MobilityDataNotFoundException() {
+    public MobilityDataNotFoundException(String message) {
+        this.message = message;
     }
 
     @Override
     public String getMessage() {
-        return " No data was found for request!";
+        return message;
     }
 
 }

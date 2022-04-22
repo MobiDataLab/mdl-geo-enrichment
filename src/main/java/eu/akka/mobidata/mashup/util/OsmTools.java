@@ -12,6 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Handles the Openstreetmap format.
+ *
+ * @author Mohamed.KARAMI
+ */
 public class OsmTools {
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmTools.class);
 

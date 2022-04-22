@@ -35,6 +35,7 @@ import java.util.*;
 public class JourneyController {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyController.class);
 
+    private static final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
     @Autowired
     private NavitiaService navitiaService;
 
@@ -44,24 +45,15 @@ public class JourneyController {
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET)
     public @ResponseBody
     NavitiaContainer getJourneys() {
-
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-
         // Get journeys from Navitia
         NavitiaContainer journeys = navitiaService.findJourneys();
 
         if (journeys == null) {
-            throw new MobilityDataNotFoundException();
+            throw new MobilityDataNotFoundException("No Navitia journeys found!");
         }
 
         // get bus stops for the same coordinates from osm
         OsmContainer busStops = osmService.findBusStops();
-        List<Coordinate> busStopCoords = new ArrayList<>();
-        busStops.getElements()
-                .forEach(element -> busStopCoords.add(new Coordinate(element.getLon(), element.getLat())));
-
-        // create a line of osm bus stops
-        LineString lineString = geometryFactory.createLineString(busStopCoords.toArray(new Coordinate[busStopCoords.size()]));
 
         journeys.getJourneys().forEach(
                 journey -> journey.getSections().forEach(
@@ -69,12 +61,12 @@ public class JourneyController {
                             // aggregate 'from' stops
                             Optional.ofNullable(section)
                                     .map(Section::getFrom)
-                                    .ifPresent(from -> aggregateBusStops(geometryFactory, busStops, lineString, from));
+                                    .ifPresent(from -> aggregateBusStops(busStops, from));
 
                             // aggregate 'to' stops
                             Optional.ofNullable(section)
                                     .map(Section::getTo)
-                                    .ifPresent(to -> aggregateBusStops(geometryFactory, busStops, lineString, to));
+                                    .ifPresent(to -> aggregateBusStops(busStops, to));
                         }
                 )
         );
@@ -82,7 +74,13 @@ public class JourneyController {
         return journeys;
     }
 
-    private void aggregateBusStops(GeometryFactory geometryFactory, OsmContainer busStops, LineString lineString, StopContainer stopContainer) {
+    private void aggregateBusStops(OsmContainer busStops, StopContainer stopContainer) {
+        // create a line of osm bus stops
+        List<Coordinate> busStopCoords = new ArrayList<>();
+        busStops.getElements()
+                .forEach(element -> busStopCoords.add(new Coordinate(element.getLon(), element.getLat())));
+        LineString lineString = geometryFactory.createLineString(busStopCoords.toArray(new Coordinate[busStopCoords.size()]));
+
         Optional.ofNullable(stopContainer.getStopPoint())
                 .ifPresent(stopPoint ->
                 {

@@ -3,6 +3,11 @@ package eu.akka.mobidata.mashup.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Handles the apis endpoints configuration.
+ *
+ * @author Mohamed.KARAMI
+ */
 @Configuration
 @ConfigurationProperties(prefix = "endpoints")
 public class EndPointConfig {

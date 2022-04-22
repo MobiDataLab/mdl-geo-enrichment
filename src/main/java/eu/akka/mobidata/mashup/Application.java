@@ -1,6 +1,5 @@
 package eu.akka.mobidata.mashup;
 
-import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.config.ProxyConfig;
 import eu.akka.mobidata.mashup.security.TrustAllX509TrustManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.event.EventListener;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -19,6 +17,11 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+/**
+ * Application
+ *
+ * @author Mohamed.KARAMI
+ */
 @SpringBootApplication
 @EnableCaching
 @EnableConfigurationProperties
@@ -37,7 +40,7 @@ public class Application {
             System.setProperty("https.proxyHost", proxyConfig.getProxyHost());
             System.setProperty("https.proxyPort", proxyConfig.getProxyPort());
 
-            // to be used only if the used jdk does not accept selfsigned certificates
+            // to be used only for debugging if the used jdk does not accept selfsigned certificates
             //disableSSLVerification();
         }
     }
@@ -49,9 +52,7 @@ public class Application {
             sc.init(null, new TrustManager[]{new TrustAllX509TrustManager()}, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier((string, ssl) -> true);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }
     }
