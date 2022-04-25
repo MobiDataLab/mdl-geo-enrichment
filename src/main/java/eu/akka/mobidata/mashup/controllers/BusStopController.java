@@ -25,7 +25,7 @@ public class BusStopController {
     public @ResponseBody
     OsmContainer getBusStops() {
         // Get bus stops from OpenStreetMap
-        OsmContainer busStops = osmService.findBusStops();
+        OsmContainer busStops = osmService.getOsmBusStops();
         if (busStops == null) {
             throw new MobilityDataNotFoundException("No OpenStreetMap bus stops found!");
         }

@@ -1,7 +1,6 @@
 package eu.akka.mobidata.mashup.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
 import eu.akka.mobidata.mashup.util.OsmTools;
@@ -16,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * Service communicating with the OpenStreetMap API
@@ -35,25 +35,43 @@ public class OsmService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * Finds and returns bus stops.
+     * Finds and returns bus stops is osm format.
      *
      * @return the bus stops if found, or null if not found
      */
     @Cacheable("bus-stops")
-    public OsmContainer findBusStops() {
+    public OsmContainer getOsmBusStops() {
         LOGGER.debug("baseURI: {}", endPointConfig.getOverpassUri());
         try {
             String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), StandardCharsets.UTF_8);
             Object navObject = restTemplate.getForObject(url, Object.class);
 
-            String stdout = OsmTools.convertOsmToGeoJson(new Gson().toJson(navObject));
-            //@TODO use geojson format instead of osm
-
             return new ObjectMapper().convertValue(navObject, OsmContainer.class);
-        } catch (RestClientException | IOException e) {
+        } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Finds and returns bus stops in geojson format.
+     *
+     * @return the bus stops if found, or null if not found
+     */
+    @Cacheable("bus-stops")
+    public String getGeoJsonBusStops() {
+        LOGGER.debug("baseURI: {}", endPointConfig.getOverpassUri());
+        try {
+            String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), StandardCharsets.UTF_8);
+            Optional<String> navResponse = Optional.ofNullable(restTemplate.getForObject(url, String.class));
+            if (navResponse.isPresent()) {
+                return OsmTools.convertOsmToGeoJson(navResponse.get());
+            }
+
+        } catch (RestClientException | IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
     }
 
 }
