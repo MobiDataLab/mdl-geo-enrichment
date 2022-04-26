@@ -3,6 +3,7 @@ package eu.akka.mobidata.mashup.controllers;
 import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.OsmService;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +24,9 @@ public class BusStopController {
 
     @RequestMapping(value = "getBusStops", method = RequestMethod.GET)
     public @ResponseBody
-    OsmContainer getBusStops() {
+    OsmContainer getBusStops(@ApiParam(value = "API full url") String apiUrl) {
         // Get bus stops from OpenStreetMap
-        OsmContainer busStops = osmService.getOsmBusStops();
+        OsmContainer busStops = osmService.getOsmBusStops(apiUrl);
         if (busStops == null) {
             throw new MobilityDataNotFoundException("No OpenStreetMap bus stops found!");
         }

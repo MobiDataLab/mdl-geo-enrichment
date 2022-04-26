@@ -1,20 +1,19 @@
 package eu.akka.mobidata.mashup.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
+import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import eu.akka.mobidata.mashup.util.OsmTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -25,13 +24,7 @@ import java.util.Optional;
 @Service
 public class OsmService {
 
-    private static final String API_BUS_STOPS = "/interpreter?data=[out:json];node[highway=bus_stop](43.5690569,1.3951577,43.6283803,1.4803165);out%20meta;";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
-
-    @Autowired
-    private EndPointConfig endPointConfig;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -39,11 +32,10 @@ public class OsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops")
-    public OsmContainer getOsmBusStops() {
-        LOGGER.debug("baseURI: {}", endPointConfig.getOverpassUri());
+    @Cacheable("bus-stops-osm")
+    public OsmContainer getOsmBusStops(String url) {
+        LOGGER.debug("baseURI: {}", url);
         try {
-            String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), StandardCharsets.UTF_8);
             Object navObject = restTemplate.getForObject(url, Object.class);
 
             return new ObjectMapper().convertValue(navObject, OsmContainer.class);
@@ -58,13 +50,15 @@ public class OsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops")
-    public String getGeoJsonBusStops() {
-        LOGGER.debug("baseURI: {}", endPointConfig.getOverpassUri());
+    @Cacheable("bus-stops-gj")
+    public String getGeoJsonBusStops(String url) {
+        LOGGER.debug("baseURI: {}", url);
         try {
-            String url = URLDecoder.decode(endPointConfig.getOverpassUri().concat(API_BUS_STOPS), StandardCharsets.UTF_8);
             Optional<String> navResponse = Optional.ofNullable(restTemplate.getForObject(url, String.class));
             if (navResponse.isPresent()) {
+                // to be used to generate pojo classes based on json response
+                // generateOsmPojoClasses(navResponse.get());
+
                 return OsmTools.convertOsmToGeoJson(navResponse.get());
             }
 
@@ -72,6 +66,22 @@ public class OsmService {
             LOGGER.error(e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * generate pojo classes based on json/osm format
+     *
+     * @param OsmResponse OSM response
+     */
+    private void generateOsmPojoClasses(String OsmResponse) {
+        try {
+            Path source = Files.createTempDirectory("pojo");
+
+            Json2PojoTools.convertJsonToJavaClass(OsmResponse, source.toFile(), "eu.akka.mobidata.mashup.domain.osm", "OsmContainer");
+            LOGGER.debug("POJO files were generated to {}", source);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
