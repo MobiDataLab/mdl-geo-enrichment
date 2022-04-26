@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Service communicating with the Navitia API
@@ -61,12 +60,12 @@ public class NavitiaService {
     public NavitiaContainer findLines() {
 
         try {
-            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_LINES), "UTF-8");
+            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_LINES), StandardCharsets.UTF_8);
             LOGGER.debug("baseURI: {}", url);
 
             Object navObject = restTemplate.getForObject(url, Object.class);
             return new ObjectMapper().convertValue(navObject, NavitiaContainer.class);
-        } catch (RestClientException | UnsupportedEncodingException e) {
+        } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
@@ -81,11 +80,11 @@ public class NavitiaService {
     public NavitiaContainer findJourneys() {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
-            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_JOURNEYS), "UTF-8");
+            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_JOURNEYS), StandardCharsets.UTF_8);
             Object navObject = restTemplate.getForObject(url, Object.class);
 
             return new ObjectMapper().convertValue(navObject, NavitiaContainer.class);
-        } catch (RestClientException | UnsupportedEncodingException e) {
+        } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
