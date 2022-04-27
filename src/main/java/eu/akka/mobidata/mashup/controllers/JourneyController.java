@@ -3,13 +3,11 @@ package eu.akka.mobidata.mashup.controllers;
 import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.domain.navitia.NavitiaContainer;
 import eu.akka.mobidata.mashup.domain.navitia.Section;
-import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.NavitiaService;
 import eu.akka.mobidata.mashup.services.OsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
-import eu.akka.mobidata.mashup.util.OsmLegacyTools;
 import eu.akka.mobidata.mashup.util.OsmTools;
 import io.swagger.annotations.ApiParam;
 import net.minidev.json.JSONArray;
@@ -61,10 +59,12 @@ public class JourneyController {
 
         if (APIFormatEnum.OSM.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            OsmContainer busStops = osmService.getOsmBusStops(apiUrl);
+            String busStops = osmService.getJsonBusStops(apiUrl);
+
+            JSONArray elements = JsonPath.read(busStops, "$.elements");
 
             // aggregate 'terminus' stops
-            journeys.getTerminus().forEach(terminus -> OsmLegacyTools.aggregateBusStops(busStops, terminus, enrichAttributes));
+            journeys.getTerminus().forEach(terminus -> OsmTools.aggregateBusStops(elements, terminus, enrichAttributes));
 
             // aggregate 'from' & 'to' stops
             journeys.getJourneys().forEach(
@@ -73,12 +73,12 @@ public class JourneyController {
                                 // aggregate 'from' stops
                                 Optional.ofNullable(section)
                                         .map(Section::getFrom)
-                                        .ifPresent(from -> OsmLegacyTools.aggregateBusStops(busStops, from, enrichAttributes));
+                                        .ifPresent(from -> OsmTools.aggregateBusStops(elements, from, enrichAttributes));
 
                                 // aggregate 'to' stops
                                 Optional.ofNullable(section)
                                         .map(Section::getTo)
-                                        .ifPresent(to -> OsmLegacyTools.aggregateBusStops(busStops, to, enrichAttributes));
+                                        .ifPresent(to -> OsmTools.aggregateBusStops(elements, to, enrichAttributes));
                             }
                     )
             );
@@ -105,31 +105,6 @@ public class JourneyController {
                                 Optional.ofNullable(section)
                                         .map(Section::getTo)
                                         .ifPresent(to -> geoJsonManager.aggregateBusStops(to, enrichAttributes));
-                            }
-                    )
-            );
-        } else if (APIFormatEnum.OSM_EXTENDED.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonBusStops(apiUrl);
-
-            JSONArray elements = JsonPath.read(busStops, "$.elements");
-
-            // aggregate 'terminus' stops
-            journeys.getTerminus().forEach(terminus -> OsmTools.aggregateBusStops(elements, terminus, enrichAttributes));
-
-            // aggregate 'from' & 'to' stops
-            journeys.getJourneys().forEach(
-                    journey -> journey.getSections().forEach(
-                            section -> {
-                                // aggregate 'from' stops
-                                Optional.ofNullable(section)
-                                        .map(Section::getFrom)
-                                        .ifPresent(from -> OsmTools.aggregateBusStops(elements, from, enrichAttributes));
-
-                                // aggregate 'to' stops
-                                Optional.ofNullable(section)
-                                        .map(Section::getTo)
-                                        .ifPresent(to -> OsmTools.aggregateBusStops(elements, to, enrichAttributes));
                             }
                     )
             );
