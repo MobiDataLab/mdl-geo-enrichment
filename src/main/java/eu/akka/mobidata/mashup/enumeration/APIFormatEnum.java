@@ -4,5 +4,5 @@ import io.swagger.annotations.ApiModel;
 
 @ApiModel
 public enum APIFormatEnum {
-    OSM, GeoJson
+    GeoJson, OSM, OSM_EXTENDED
 }

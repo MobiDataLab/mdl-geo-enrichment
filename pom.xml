@@ -86,6 +86,12 @@
             <artifactId>guava</artifactId>
             <version>31.0.1-jre</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.7.0</version>
+        </dependency>
         <!-- Test only BEGIN -->
         <dependency>
             <groupId>junit</groupId>

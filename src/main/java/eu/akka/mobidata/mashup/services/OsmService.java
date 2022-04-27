@@ -69,6 +69,22 @@ public class OsmService {
     }
 
     /**
+     * Finds and returns bus stops in json format.
+     *
+     * @return the bus stops if found, or null if not found
+     */
+    //@Cacheable("bus-stops-json")
+    public String getJsonBusStops(String url) {
+        LOGGER.debug("baseURI: {}", url);
+        try {
+            return restTemplate.getForObject(url, String.class);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * generate pojo classes based on json/osm format
      *
      * @param OsmResponse OSM response
