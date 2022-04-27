@@ -132,7 +132,7 @@ public class OsmTools {
                         Object propertyValue = tags.get(attribute);
                         // set wheelchair information if exists
                         if (propertyValue != null) {
-                            stopContainer.getAdditionalProperties().put(attribute, propertyValue);
+                            stopContainer.getStopPoint().getAdditionalProperties().put(attribute, propertyValue);
                         }
                     });
                     Object name = tags.get("name");

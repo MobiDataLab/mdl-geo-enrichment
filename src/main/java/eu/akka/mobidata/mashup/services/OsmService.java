@@ -1,7 +1,5 @@
 package eu.akka.mobidata.mashup.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.akka.mobidata.mashup.domain.osm.OsmContainer;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import eu.akka.mobidata.mashup.util.OsmTools;
 import org.slf4j.Logger;
@@ -28,29 +26,11 @@ public class OsmService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * Finds and returns bus stops is osm format.
-     *
-     * @return the bus stops if found, or null if not found
-     */
-    @Cacheable("bus-stops-osm")
-    public OsmContainer getOsmBusStops(String url) {
-        LOGGER.debug("baseURI: {}", url);
-        try {
-            Object navObject = restTemplate.getForObject(url, Object.class);
-
-            return new ObjectMapper().convertValue(navObject, OsmContainer.class);
-        } catch (RestClientException e) {
-            LOGGER.error(e.getMessage());
-            return null;
-        }
-    }
-
-    /**
      * Finds and returns bus stops in geojson format.
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops-gj")
+    @Cacheable("bus-stops-geojson")
     public String getGeoJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
@@ -73,7 +53,7 @@ public class OsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    //@Cacheable("bus-stops-json")
+    @Cacheable("bus-stops-json")
     public String getJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
