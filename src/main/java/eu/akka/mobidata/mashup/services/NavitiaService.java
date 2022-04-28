@@ -1,9 +1,7 @@
 package eu.akka.mobidata.mashup.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.config.TokenConfig;
-import eu.akka.mobidata.mashup.domain.navitia.NavitiaContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,14 +55,13 @@ public class NavitiaService {
      * @return the lines if found, or null if not found
      */
     @Cacheable("lines")
-    public NavitiaContainer findLines() {
+    public String findLines() {
 
         try {
             String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_LINES), StandardCharsets.UTF_8);
             LOGGER.debug("baseURI: {}", url);
 
-            Object navObject = restTemplate.getForObject(url, Object.class);
-            return new ObjectMapper().convertValue(navObject, NavitiaContainer.class);
+            return restTemplate.getForObject(url, String.class);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
             return null;
@@ -76,14 +73,13 @@ public class NavitiaService {
      *
      * @return the journeys if found, or null if not found
      */
-    @Cacheable("journeys")
-    public NavitiaContainer findJourneys() {
+    @Cacheable("journeys-json")
+    public String findJsonJourneys() {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
             String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_JOURNEYS), StandardCharsets.UTF_8);
-            Object navObject = restTemplate.getForObject(url, Object.class);
+            return restTemplate.getForObject(url, String.class);
 
-            return new ObjectMapper().convertValue(navObject, NavitiaContainer.class);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
             return null;

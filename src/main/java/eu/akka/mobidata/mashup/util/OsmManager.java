@@ -1,0 +1,95 @@
+package eu.akka.mobidata.mashup.util;
+
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Handles the Openstreetmap format.
+ *
+ * @author Mohamed.KARAMI
+ */
+public class OsmManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OsmManager.class);
+
+    private DocumentContext targetApiContext;
+
+    public OsmManager(String targetApiResponse) {
+        this.targetApiContext = JsonPath.parse(targetApiResponse);
+    }
+
+    public String aggregateBusStops(JSONArray busStops, String attributes) {
+
+        try {
+            List<LinkedHashMap> elements = busStops.stream()
+                    .map(element -> (LinkedHashMap) element)
+                    .collect(Collectors.toList());
+
+            List<LinkedHashMap> stopAreas = this.targetApiContext.read("$..stop_area");
+            // for the current navitia stop point we will look for the closest bugs tops on osm line
+            stopAreas.forEach(stopArea ->
+            {
+                LinkedHashMap coords = (LinkedHashMap) stopArea.get("coord");
+                Coordinate coordinate = new Coordinate(
+                        Double.parseDouble(coords.get("lon").toString()),
+                        Double.parseDouble(coords.get("lat").toString()));
+
+                Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
+
+                enrichPoint(attributes, stopArea, geoNav, elements);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return targetApiContext.jsonString();
+    }
+
+    private void enrichPoint(String attributes, LinkedHashMap stopArea, Geometry geoNav, List<LinkedHashMap> elements) {
+        elements.stream()
+                .filter(element ->
+                        {
+                            Coordinate coordOsm = new Coordinate(
+                                    Double.parseDouble(element.get("lon").toString()),
+                                    Double.parseDouble(element.get("lat").toString()));
+
+                            Geometry geoOsm = GeometryTools.geometryFactory.createPoint(coordOsm);
+                            Object name = ((LinkedHashMap<?, ?>) element.get("tags")).get("name");
+                            return name != null
+                                    && element.get("type").equals("node") // point type
+                                    && (stopArea.get("name").equals(name) // both points have the same name of are too close to each other
+                                    || geoNav.isWithinDistance(geoOsm, 0.001D));
+                        }
+                )
+                // get latest version/changeset only
+                .max(Comparator.comparing(element -> (Integer) element.get("changeset")))
+                .ifPresent(element -> {
+                    // load tags og the current node
+                    LinkedHashMap tags = (LinkedHashMap) element.get("tags");
+
+                    // remove white spaces from the attributes list then enrich the additional properties
+                    Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
+                        Object propertyValue = tags.get(attribute);
+                        // set attribute information if exists
+                        if (propertyValue != null) {
+                            Object stopId = stopArea.get("id");
+                            // add new attribute to navitia with the same name as osm
+                            this.targetApiContext.put("$..stop_area[?(@.id=='" + stopId + "')]", attribute, propertyValue);
+                        }
+                    });
+                    Object name = tags.get("name");
+                    LOGGER.debug("Bus stop : " + name + " v" + element.get("version") + " is close to: " + stopArea.get("name"));
+                });
+    }
+
+}
