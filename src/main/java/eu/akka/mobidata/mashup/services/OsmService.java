@@ -1,7 +1,6 @@
 package eu.akka.mobidata.mashup.services;
 
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
-import eu.akka.mobidata.mashup.util.OsmTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * Service communicating with the OpenStreetMap API
@@ -34,15 +32,13 @@ public class OsmService {
     public String getGeoJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            Optional<String> navResponse = Optional.ofNullable(restTemplate.getForObject(url, String.class));
-            if (navResponse.isPresent()) {
-                // to be used to generate pojo classes based on json response
-                // generateOsmPojoClasses(navResponse.get());
+            String navResponse = restTemplate.getForObject(url, String.class);
 
-                return OsmTools.convertOsmToGeoJson(navResponse.get());
-            }
+            // to be used to generate pojo classes based on json response
+            // generateOsmPojoClasses(navResponse);
 
-        } catch (RestClientException | IOException e) {
+            return navResponse;
+        } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }
         return null;
