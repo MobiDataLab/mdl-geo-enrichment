@@ -1,12 +1,13 @@
 package eu.akka.mobidata.mashup.services;
 
+import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +22,10 @@ import java.nio.file.Path;
 public class OsmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
-    private final RestTemplate restTemplate = new RestTemplate();
+    //private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    EndPointConfig endPointConfig;
 
     /**
      * Finds and returns bus stops in geojson format.
@@ -32,7 +36,7 @@ public class OsmService {
     public String getGeoJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = restTemplate.getForObject(url, String.class);
+            String navResponse = endPointConfig.getRestTemplate().getForObject(url, String.class);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse);
@@ -53,7 +57,7 @@ public class OsmService {
     public String getJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            return restTemplate.getForObject(url, String.class);
+            return endPointConfig.getRestTemplate().getForObject(url, String.class);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }
