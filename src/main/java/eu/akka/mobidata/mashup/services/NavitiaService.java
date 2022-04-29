@@ -2,6 +2,7 @@ package eu.akka.mobidata.mashup.services;
 
 import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.config.TokenConfig;
+import eu.akka.mobidata.mashup.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 /**
  * Service communicating with the Navitia API
@@ -25,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 public class NavitiaService {
 
     private static final String API_LINES = "/coverage/sandbox/lines?from=1.3951577;43.5690569&to=1.4803165;43.6283803";
-    private static final String API_JOURNEYS = "/journeys?from=1.3951577;43.5690569&to=1.4803165;43.6283803&allowed_id[]=physical_mode:Bus";
+    private static final String API_JOURNEYS = "/journeys?from=from_coord&to=to_coord&allowed_id[]=physical_mode:Bus";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaService.class);
 
@@ -46,7 +48,7 @@ public class NavitiaService {
                     String token = request.getURI().getPath().contains("sandbox") ? tokenConfig.getNavitiaDocToken() : tokenConfig.getNavitiaUserToken();
                     request.getHeaders().add("Authorization", token);
                     return execution.execute(request, body);
-                }).build();
+                }).setReadTimeout(Duration.ofSeconds(60)).build();
     }
 
     /**
@@ -74,10 +76,20 @@ public class NavitiaService {
      * @return the journeys if found, or null if not found
      */
     @Cacheable("journeys-json")
-    public String findJsonJourneys() {
+    public String findJsonJourneys(String fromCoordinates, String toCoordinates) {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
-            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(API_JOURNEYS), StandardCharsets.UTF_8);
+            String[] from = fromCoordinates.split(",");
+            String[] to = toCoordinates.split(",");
+
+            if (from.length < 2 && to.length < 2) {
+                throw new BadRequestException("Malformed from/to coordinates!");
+            }
+
+            String urlRequest = API_JOURNEYS.replace("from_coord", from[1] + ";" + from[0]);
+            urlRequest = urlRequest.replace("to_coord", to[1] + ";" + to[0]);
+
+            String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(urlRequest), StandardCharsets.UTF_8);
             return restTemplate.getForObject(url, String.class);
 
         } catch (RestClientException e) {
