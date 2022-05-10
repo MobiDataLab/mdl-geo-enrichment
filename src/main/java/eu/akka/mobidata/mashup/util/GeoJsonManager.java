@@ -45,7 +45,7 @@ public class GeoJsonManager {
     }
 
 
-    private String convertOsmToGeoJson(String osmResponse) {
+    public static String convertOsmToGeoJson(String osmResponse) {
         String osmGeoJson = null;
 
         try {

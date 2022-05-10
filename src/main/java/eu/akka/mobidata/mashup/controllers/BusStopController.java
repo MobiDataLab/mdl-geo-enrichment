@@ -4,6 +4,7 @@ import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.OsmService;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping("/api/v1/osm")
+@RequestMapping(value = "/api/v1/osm", produces = MediaType.APPLICATION_JSON_VALUE)
 public class BusStopController {
 
     @Autowired
