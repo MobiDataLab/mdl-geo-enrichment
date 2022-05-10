@@ -3,6 +3,7 @@ package eu.akka.mobidata.mashup.util;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
+import net.minidev.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -104,49 +105,70 @@ public class GeoJsonManager {
     public String aggregateBusStops(String attributes) {
 
         try {
-            List<LinkedHashMap> stopAreas = this.targetApiContext.read("$..stop_area");
-            // for the current navitia stop point we will look for the closest bugs tops on osm line
-            stopAreas.forEach(stopArea ->
-            {
-                LinkedHashMap coords = (LinkedHashMap) stopArea.get("coord");
-                Coordinate coordinate = new Coordinate(
-                        Double.parseDouble(coords.get("lon").toString()),
-                        Double.parseDouble(coords.get("lat").toString()));
-
-                Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
-
-                enrichWithProperties(attributes, stopArea, geoNav);
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            // create empty equipments array if not exist for all stop_point
+            this.targetApiContext.put("$..stop_point[?(!@.equipments)]", "equipments", new JSONArray());
+        } catch (Exception ignored) {
         }
+
+        List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
+        // for the current navitia stop point we will look for the closest bugs tops on osm line
+        stopPoints.parallelStream().forEach(stopPoint ->
+        {
+            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("address")).get("coord");
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(coords.get("lon").toString()),
+                    Double.parseDouble(coords.get("lat").toString()));
+
+            Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
+
+            enrichWithProperties(attributes, stopPoint, geoNav);
+        });
+
         return targetApiContext.jsonString();
     }
 
-    public void enrichWithProperties(String attributes, LinkedHashMap stopArea, Geometry geoNav) {
-        // get the closest feature/point to Navitia's bus stop
-        simpleFeatureList.stream()
-                .filter(feature ->
-                        feature.getProperty("name").getValue() != null
-                                && geoNav.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
-                                && (stopArea.get("name").equals(feature.getProperty("name").getValue())
-                                || geoNav.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
-                )
-                // get latest version/changeset only
-                .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
-                .ifPresent(feature -> {
-                    // remove white spaces from the attributes list then enrich the additional properties
-                    Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
-                        Object propertyValue = feature.getProperty(attribute).getValue();
-                        // set attributes information if exists
-                        if (propertyValue != null) {
-                            Object stopId = stopArea.get("id");
-                            // add new attribute to navitia with the same name as osm
-                            this.targetApiContext.put("$..stop_area[?(@.id=='" + stopId + "')]", attribute, propertyValue);
-                        }
+    public void enrichWithProperties(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNavitia) {
+        // get the closest feature/point to Navitia's bus stop and enrich it
+        Object stopId = stopPointNavitia.get("id");
+        if (stopId != null) {
+            simpleFeatureList.parallelStream()
+                    .filter(feature ->
+                            feature.getProperty("name").getValue() != null
+                                    && geoNavitia.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
+                                    && (stopPointNavitia.get("name").equals(feature.getProperty("name").getValue())
+                                    || geoNavitia.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
+                    )
+                    // get latest version/changeset only
+                    .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
+                    .ifPresent(feature -> {
+                        // remove white spaces from the attributes list then enrich the additional properties
+                        Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
+                            Object propertyValue = feature.getProperty(attribute).getValue();
+                            // add new attribute to navitia's bus stop equipments
+                            if ("yes".equals(propertyValue)) {
+                                setAttribute(stopPointNavitia, attribute);
+                            }
+                        });
+                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia.get("name"));
                     });
-                    LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopArea.get("name"));
-                });
+        }
+    }
+
+    public static void setAttribute(LinkedHashMap stopPointNavitia, String attribute) {
+        JSONArray equipments = (JSONArray) stopPointNavitia.get("equipments");
+
+        switch (attribute) {
+            case "wheelchair":
+                String has_attribute = "has_wheelchair_boarding";
+                if (equipments.stream().noneMatch(equipment -> equipment.toString().startsWith("has_wheelchair"))) {
+                    equipments.appendElement(has_attribute);
+                }
+                break;
+            default:
+                has_attribute = "has_" + attribute;
+                if (equipments.stream().noneMatch(equipment -> equipment.equals(has_attribute))) {
+                    equipments.appendElement(has_attribute);
+                }
+        }
     }
 }

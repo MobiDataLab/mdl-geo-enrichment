@@ -26,7 +26,7 @@ import java.time.Duration;
 @Service
 public class NavitiaService {
 
-    private static final String API_LINES = "/coverage/sandbox/lines?from=1.3951577;43.5690569&to=1.4803165;43.6283803";
+    private static final String API_LINES = "/coverage/sandbox/lines?from=2.2433581;48.8345631&to=2.4400646;48.8775033";
     private static final String API_JOURNEYS = "/journeys?from=from_coord&to=to_coord&allowed_id[]=physical_mode:Bus";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaService.class);

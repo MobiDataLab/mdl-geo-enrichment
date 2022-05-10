@@ -42,9 +42,9 @@ public class JourneyController {
     public @ResponseBody
     String getJourneys(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                        @ApiParam(value = "API format", required = true) APIFormatEnum apiFormat,
-                       @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](43.5690569,1.3951577,43.6283803,1.4803165);out%20meta;") String apiUrl,
-                       @ApiParam(value = "Coordinates of starting point", required = true, example = "43.5690569,1.3951577") String fromCoordinates,
-                       @ApiParam(value = "Coordinates of the arrival point", required = true, example = "43.6283803,1.4803165") String toCoordinates) {
+                       @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
+                       @ApiParam(value = "Coordinates of starting point", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
+                       @ApiParam(value = "Coordinates of the arrival point", required = true, example = "48.8775033,2.4400646") String toCoordinates) {
 
         apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
 
@@ -63,8 +63,7 @@ public class JourneyController {
             // aggregate and enrich navitia's bus stops from osm response
             OsmManager osmManager = new OsmManager(journeys);
             return osmManager.aggregateBusStops(osmElements, enrichAttributes);
-        }
-        else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
+        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
             String osmBusStops = osmService.getGeoJsonBusStops(apiUrl);
 
