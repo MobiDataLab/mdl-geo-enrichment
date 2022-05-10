@@ -1,6 +1,7 @@
 package eu.akka.mobidata.mashup.services;
 
 import eu.akka.mobidata.mashup.config.EndPointConfig;
+import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,9 @@ public class OsmService {
             String navResponse = endPointConfig.getRestTemplate().getForObject(url, String.class);
 
             // to be used to generate pojo classes based on json response
-            // generateOsmPojoClasses(navResponse);
+            // generateOsmPojoClasses(navResponse.getBody());
 
-            return navResponse;
+            return GeoJsonManager.convertOsmToGeoJson(navResponse);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }
