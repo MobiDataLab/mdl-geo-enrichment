@@ -22,7 +22,6 @@ import java.nio.file.Path;
 public class OsmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
-    //private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     EndPointConfig endPointConfig;

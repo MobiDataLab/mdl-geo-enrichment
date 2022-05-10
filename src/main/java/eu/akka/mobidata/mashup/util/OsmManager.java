@@ -29,34 +29,37 @@ public class OsmManager {
     }
 
     public String aggregateBusStops(JSONArray busStops, String attributes) {
+        List<LinkedHashMap> elements = busStops.stream()
+                .map(element -> (LinkedHashMap) element)
+                .collect(Collectors.toList());
 
         try {
-            List<LinkedHashMap> elements = busStops.stream()
-                    .map(element -> (LinkedHashMap) element)
-                    .collect(Collectors.toList());
-
-            List<LinkedHashMap> stopAreas = this.targetApiContext.read("$..stop_area");
-            // for the current navitia stop point we will look for the closest bugs tops on osm line
-            stopAreas.forEach(stopArea ->
-            {
-                LinkedHashMap coords = (LinkedHashMap) stopArea.get("coord");
-                Coordinate coordinate = new Coordinate(
-                        Double.parseDouble(coords.get("lon").toString()),
-                        Double.parseDouble(coords.get("lat").toString()));
-
-                Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
-
-                enrichPoint(attributes, stopArea, geoNav, elements);
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            // create empty equipments array if not exist for all stop_point
+            this.targetApiContext.put("$..stop_point[?(!@.equipments)]", "equipments", new JSONArray());
+        } catch (Exception ignored) {
         }
+
+        List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
+        // for the current navitia stop point we will look for the closest bugs tops on osm line
+        stopPoints.parallelStream().forEach(stopPoint ->
+        {
+            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("address")).get("coord");
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(coords.get("lon").toString()),
+                    Double.parseDouble(coords.get("lat").toString()));
+
+            Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
+
+            enrichPoint(attributes, stopPoint, geoNav, elements);
+        });
+
         return targetApiContext.jsonString();
     }
 
-    private void enrichPoint(String attributes, LinkedHashMap stopArea, Geometry geoNav, List<LinkedHashMap> elements) {
-        elements.stream()
+    private void enrichPoint(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNav, List<LinkedHashMap> elements) {
+        // get the closest feature/point to Navitia's bus stop and enrich it
+        Object stopId = stopPointNavitia.get("id");
+        elements.parallelStream()
                 .filter(element ->
                         {
                             Coordinate coordOsm = new Coordinate(
@@ -67,7 +70,7 @@ public class OsmManager {
                             Object name = ((LinkedHashMap<?, ?>) element.get("tags")).get("name");
                             return name != null
                                     && element.get("type").equals("node") // point type
-                                    && (stopArea.get("name").equals(name) // both points have the same name of are too close to each other
+                                    && (stopPointNavitia.get("name").equals(name) // both points have the same name of are too close to each other
                                     || geoNav.isWithinDistance(geoOsm, 0.001D));
                         }
                 )
@@ -80,15 +83,12 @@ public class OsmManager {
                     // remove white spaces from the attributes list then enrich the additional properties
                     Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
                         Object propertyValue = tags.get(attribute);
-                        // set attribute information if exists
-                        if (propertyValue != null) {
-                            Object stopId = stopArea.get("id");
-                            // add new attribute to navitia with the same name as osm
-                            this.targetApiContext.put("$..stop_area[?(@.id=='" + stopId + "')]", attribute, propertyValue);
+                        // add new attribute to navitia's bus stop equipments
+                        if ("yes".equals(propertyValue)) {
+                            GeoJsonManager.setAttribute(stopPointNavitia, attribute);
                         }
                     });
-                    Object name = tags.get("name");
-                    LOGGER.debug("Bus stop : " + name + " v" + element.get("version") + " is close to: " + stopArea.get("name"));
+                    LOGGER.debug("Bus stop : " + tags.get("name") + " v" + element.get("version") + " is close to: " + stopPointNavitia.get("name"));
                 });
     }
 
