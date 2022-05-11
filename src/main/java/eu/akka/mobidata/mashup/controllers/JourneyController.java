@@ -14,14 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * Handles the mobility data / journeys in the REST API.
@@ -42,12 +40,11 @@ public class JourneyController {
 
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String getJourneys(@RequestHeader Map<String, String> headers,
-                       @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
+    String getJourneys(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                        @ApiParam(value = "API format", required = true) APIFormatEnum apiFormat,
                        @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
-                       @ApiParam(value = "Coordinates of starting point", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
-                       @ApiParam(value = "Coordinates of the arrival point", required = true, example = "48.8775033,2.4400646") String toCoordinates) {
+                       @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
+                       @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "48.8775033,2.4400646") String toCoordinates) {
 
         apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
 
