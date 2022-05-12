@@ -1,9 +1,10 @@
 # docker image to be used for build & test MobiDataMashup
-FROM maven:3.8.5-openjdk-11-slim
+FROM adoptopenjdk/openjdk11:alpine-jre
 
-RUN apt-get install update -y curl \
-  && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
-  && apt-get install -y nodejs \
-  && curl -L https://www.npmjs.com/install.sh | sh \
+RUN apk add nodejs npm \
+    && npm install -g osmtogeojson
 
-RUN npm install -g osmtogeojson
+RUN mkdir /app
+WORKDIR /app
+COPY target/*.jar app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar"]
