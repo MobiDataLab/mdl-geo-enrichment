@@ -1,8 +1,9 @@
-package eu.akka.mobidata.mashup.services;
+package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.config.TokenConfig;
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
+import eu.akka.mobidata.mashup.services.interfaces.INavitiaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import java.time.Duration;
  * @author Mohamed.KARAMI
  */
 @Service
-public class NavitiaService {
+public class NavitiaService implements INavitiaService {
 
     private static final String API_LINES = "/coverage/sandbox/lines?from=2.2433581;48.8345631&to=2.4400646;48.8775033";
     private static final String API_JOURNEYS = "/journeys?from=from_coord&to=to_coord&allowed_id[]=physical_mode:Bus";
@@ -56,7 +57,6 @@ public class NavitiaService {
      *
      * @return the lines if found, or null if not found
      */
-    @Cacheable("lines")
     public String findLines() {
 
         try {
@@ -75,7 +75,6 @@ public class NavitiaService {
      *
      * @return the journeys if found, or null if not found
      */
-    @Cacheable("journeys-json")
     public String findJsonJourneys(String fromCoordinates, String toCoordinates) {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
