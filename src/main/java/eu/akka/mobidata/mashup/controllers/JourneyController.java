@@ -3,8 +3,8 @@ package eu.akka.mobidata.mashup.controllers;
 import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
-import eu.akka.mobidata.mashup.services.NavitiaService;
-import eu.akka.mobidata.mashup.services.OsmService;
+import eu.akka.mobidata.mashup.services.interfaces.INavitiaService;
+import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
@@ -33,10 +33,10 @@ public class JourneyController {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyController.class);
 
     @Autowired
-    private NavitiaService navitiaService;
+    private INavitiaService navitiaService;
 
     @Autowired
-    private OsmService osmService;
+    private IOsmService osmService;
 
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody

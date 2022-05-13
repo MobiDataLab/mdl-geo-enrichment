@@ -1,6 +1,7 @@
-package eu.akka.mobidata.mashup.services;
+package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.config.EndPointConfig;
+import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import java.nio.file.Path;
  * @author Mohamed.KARAMI
  */
 @Service
-public class OsmService {
+public class OsmService implements IOsmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
 
@@ -32,7 +33,6 @@ public class OsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops-geojson")
     public String getGeoJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
@@ -53,7 +53,6 @@ public class OsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops-json")
     public String getJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {

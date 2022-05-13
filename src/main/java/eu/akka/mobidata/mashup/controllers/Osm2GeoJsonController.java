@@ -1,6 +1,6 @@
 package eu.akka.mobidata.mashup.controllers;
 
-import eu.akka.mobidata.mashup.services.OsmService;
+import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Base64;
 public class Osm2GeoJsonController {
 
     @Autowired
-    OsmService osmService;
+    IOsmService osmService;
 
     /**
      * Convert data to geoJson
