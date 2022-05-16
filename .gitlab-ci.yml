@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - package
   - deploy
 
 # cache maven repo & nodejs modules
@@ -12,13 +13,19 @@ cache:
     - target/
 
 variables:
+  JAVA_HOME: /usr/local/openjdk-11
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  DOCKER_DRIVER: overlay
+  SPRING_PROFILES_ACTIVE: integration-test
+  GROUP_GITLAB: mohamed.karami
+  APP_NAME: mobidata-mashup
+  REPO: mobidatalab
+#  CI_REGISTRY: gitlab.akka.eu:4567
 
 # not need on elksiba runner
 #before_script:
 #  - export http_proxy=$HTTP_PROXY; export https_proxy=$HTTPS_PROXY; export no_proxy=$NO_PROXY;
-#  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
 
 build-job:
   stage: build
@@ -47,38 +54,52 @@ unit-test-job:   # This job runs in the test stage.
   script:
     - echo "Running unit tests..."
     - export APT_CACHE_DIR=apt-cache && mkdir -pv $APT_CACHE_DIR
-    - DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y unzip nodejs npm
-#    - apt update
-#    - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
+    - DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y unzip nodejs npm > /dev/null
+    - apt update
+    - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
     - nodejs --version
 #    - npm config rm proxy; npm config rm https-proxy; npm config --global rm proxy; npm config --global rm https-proxy
-#    - npm config set proxy http://$AKKA_USR:$AKKA_PWD@and-fgt-ha.akka.eu:9090
-#    - npm config set https-proxy http://$AKKA_USR:$AKKA_PWD@and-fgt-ha.akka.eu:9090
+#    - npm config set proxy http://$CI_USER:$CI_PWD@and-fgt-ha.akka.eu:9090
+#    - npm config set https-proxy http://$CI_USER:$CI_PWD@and-fgt-ha.akka.eu:9090
+
 ## required for selfsigned certificate
 #    - npm set strict-ssl false
     - npm install -g osmtogeojson
     - mvn verify
     - echo "Unit tests execution complete."
 
-#lint-test-job:   # This job also runs in the test stage.
-#  stage: test    # It can run at the same time as unit-test-job (in parallel).
-#  image: jhipster/jhipster:v7.8.1
-#  tags:
-#    - elksiba
-#  script:
-#    - echo "Linting code... This will take about 10 seconds."
-#    - sleep 10
-#    - echo "No lint issues found."
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+package-job:   # This job runs in the test stage.
+  stage: package    # It only starts when the job in the build stage completes successfully.
   image: maven:3.8.5-openjdk-11-slim
   tags:
     - elksiba
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - echo "Packaging application..."
+    - mvn clean package -B -Pdev
+    - echo "Application packaged !"
+  only:
+    - master
 
-# not need on elksiba runner
-#after_script:
-#  - docker logout
+deploy-job:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - elksiba
+  before_script:
+#    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u "$CI_REGISTRY_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - echo "Deploying application..."
+#    - docker build -t gitlab.akka.eu:4567/$GROUP_GITLAB/$REPO .
+#    - docker push gitlab.akka.eu:4567/$GROUP_GITLAB/$REPO
+    - docker build -t wanam/$REPO:latest .
+    - docker push wanam/$REPO:latest
+    - echo "Application successfully deployed."
+  only:
+    - master
+
+# not needed on elksiba runner
+after_script:
+  - docker logout
