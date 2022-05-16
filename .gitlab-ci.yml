@@ -54,7 +54,7 @@ unit-test-job:   # This job runs in the test stage.
   script:
     - echo "Running unit tests..."
     - export APT_CACHE_DIR=apt-cache && mkdir -pv $APT_CACHE_DIR
-    - DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y unzip nodejs npm
+    - DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y unzip nodejs npm > /dev/null
     - apt update
     - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
     - nodejs --version
