@@ -78,7 +78,7 @@ package-job:   # This job runs in the test stage.
     - mvn clean package -B -Pdev
     - echo "Application packaged !"
   only:
-    - master
+    - main
 
 deploy-job:
   stage: deploy
@@ -98,7 +98,7 @@ deploy-job:
     - docker push wanam/$REPO:latest
     - echo "Application successfully deployed."
   only:
-    - master
+    - main
 
 # not needed on elksiba runner
 after_script:
