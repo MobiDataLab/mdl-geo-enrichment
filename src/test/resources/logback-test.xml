@@ -5,8 +5,11 @@
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 		</encoder>
 	</appender>
-	<root level="warn">
+	<root level="debug">
 		<appender-ref ref="STDOUT" />
 	</root>
-	<logger name="com.consol.citrus" level="info" />
+	<logger name="eu.akka.mobidata" level="warn"/>
+
+	<!-- Disable jsonpath debug logs -->
+	<Logger name="com.jayway.jsonpath" level="warn"/>
 </configuration>

@@ -9,7 +9,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="se.christer" level="info"/>
+    <logger name="eu.akka.mobidata" level="warn"/>
 
     <!-- Disable jsonpath debug logs -->
     <Logger name="com.jayway.jsonpath" level="warn"/>

@@ -7,7 +7,6 @@ import eu.akka.mobidata.mashup.util.Json2PojoTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -36,7 +35,7 @@ public class OsmService implements IOsmService {
     public String getGeoJsonBusStops(String url) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = endPointConfig.getRestTemplate().getForObject(url, String.class);
+            String navResponse = getJsonBusStops(url);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
