@@ -75,7 +75,7 @@ package-job:   # This job runs in the test stage.
     - elksiba
   script:
     - echo "Packaging application..."
-    - mvn clean package -B -Pdev
+    - mvn clean package -B -Dspring.profiles.active=dev
     - echo "Application packaged !"
   only:
     - main
