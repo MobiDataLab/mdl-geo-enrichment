@@ -160,7 +160,7 @@ public class GeoJsonManager {
         switch (attribute) {
             case "wheelchair":
                 String has_attribute = "has_wheelchair_boarding";
-                if (equipments.stream().noneMatch(equipment -> equipment.toString().startsWith("has_wheelchair"))) {
+                if (equipments.stream().noneMatch(equipment -> equipment.equals(has_attribute))) {
                     equipments.appendElement(has_attribute);
                 }
                 break;
