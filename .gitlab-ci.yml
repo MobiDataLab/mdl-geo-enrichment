@@ -16,6 +16,9 @@ variables:
   JAVA_HOME: /usr/local/openjdk-11
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+#  PROXY: http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
+#  HTTPS_PROXY: http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
+#  NO_PROXY: gitlab.akka.eu
   DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: integration-test
   GROUP_GITLAB: mohamed.karami
@@ -41,7 +44,7 @@ build-job:
     - echo "Compiling the code..."
     - mvn install -B -DskipTests
     - echo "Compile complete!"
-## cannot be used with external runners
+# cannot be used with external runners
 #  artifacts:
 #    paths:
 #      - target/
@@ -59,8 +62,8 @@ unit-test-job:   # This job runs in the test stage.
     - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
     - nodejs --version
 #    - npm config rm proxy; npm config rm https-proxy; npm config --global rm proxy; npm config --global rm https-proxy
-#    - npm config set proxy http://$CI_USER:$CI_PWD@and-fgt-ha.akka.eu:9090
-#    - npm config set https-proxy http://$CI_USER:$CI_PWD@and-fgt-ha.akka.eu:9090
+#    - npm config set proxy http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
+#    - npm config set https-proxy http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
 
 ## required for selfsigned certificate
 #    - npm set strict-ssl false
@@ -75,7 +78,7 @@ package-job:   # This job runs in the test stage.
     - elksiba
   script:
     - echo "Packaging application..."
-    - mvn clean package -B -Dspring.profiles.active=dev
+    - mvn clean package -B -Dspring.profiles.active=dev -DskipTests
     - echo "Application packaged !"
   only:
     - main
@@ -88,7 +91,7 @@ deploy-job:
   tags:
     - elksiba
   before_script:
-#    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u "$CI_REGISTRY_USER" --password-stdin
+#    - echo "$CI_AKKA_PASSWORD" | docker login $CI_REGISTRY -u "$CI_AKKA_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
   script:
     - echo "Deploying application..."
@@ -99,7 +102,5 @@ deploy-job:
     - echo "Application successfully deployed."
   only:
     - main
-
-# not needed on elksiba runner
-after_script:
-  - docker logout
+  after_script:
+    - docker logout

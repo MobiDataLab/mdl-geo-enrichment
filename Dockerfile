@@ -7,4 +7,5 @@ RUN apk add nodejs npm \
 RUN mkdir /app
 WORKDIR /app
 COPY target/*.jar app.jar
+EXPOSE 8100
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar"]

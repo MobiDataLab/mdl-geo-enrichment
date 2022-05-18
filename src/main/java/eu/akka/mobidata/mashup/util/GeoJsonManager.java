@@ -57,11 +57,17 @@ public class GeoJsonManager {
             Files.write(tempFile, osmResponse.getBytes(StandardCharsets.UTF_8));
 
             // get npm path
-            Process process = runtime.exec(Constants.NPM_GET_PATH);
-            String npmPath = IOUtils.toString(process.getInputStream(), Charset.defaultCharset()).replace("\n", "");
+            Process process;
+            String[] command = {Constants.OSM_TO_GEOJSON, tempFile.toString()};
 
-            // convert osm to geojson
-            String[] command = {npmPath + File.separator + Constants.OSM_TO_GEOJSON, tempFile.toString()};
+            if (Utils.isWindows()) {
+                process = runtime.exec(Constants.NPM_GET_WIN_PATH);
+                String npmPath = IOUtils.toString(process.getInputStream(), Charset.defaultCharset()).replace("\n", "");
+
+                // convert osm to geojson
+                command = new String[]{npmPath + File.separator + Constants.OSM_TO_GEOJSON, tempFile.toString()};
+            }
+
             process = runtime.exec(command);
             osmGeoJson = IOUtils.toString(process.getInputStream(), Charset.defaultCharset());
 
