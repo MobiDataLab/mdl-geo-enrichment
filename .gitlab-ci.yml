@@ -16,19 +16,11 @@ variables:
   JAVA_HOME: /usr/local/openjdk-11
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-#  PROXY: http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
-#  HTTPS_PROXY: http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
-#  NO_PROXY: gitlab.akka.eu
   DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: integration-test
   GROUP_GITLAB: mohamed.karami
   APP_NAME: mobidata-mashup
   REPO: mobidatalab
-#  CI_REGISTRY: gitlab.akka.eu:4567
-
-# not need on elksiba runner
-#before_script:
-#  - export http_proxy=$HTTP_PROXY; export https_proxy=$HTTPS_PROXY; export no_proxy=$NO_PROXY;
 
 build-job:
   stage: build
@@ -36,11 +28,6 @@ build-job:
   tags:
     - mobidata-processor1
   script:
-#    - echo "Installing osgeo repository certificates, needed for selfsigned certificate"
-#    - which java
-#    - java -version
-#    - echo -n | openssl s_client -connect repo.osgeo.org:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/certOsgeo.cer
-#    - keytool -import -trustcacerts -keystore /usr/local/openjdk-11/lib/security/cacerts -storepass changeit -noprompt -alias certOsgeo -file /tmp/certOsgeo.cer
     - echo "Compiling the code..."
     - mvn install -B -DskipTests
     - echo "Compile complete!"
@@ -61,12 +48,6 @@ unit-test-job:   # This job runs in the test stage.
     - apt update
     - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
     - nodejs --version
-#    - npm config rm proxy; npm config rm https-proxy; npm config --global rm proxy; npm config --global rm https-proxy
-#    - npm config set proxy http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
-#    - npm config set https-proxy http://$CI_AKKA_USER:$CI_AKKA_PASSWORD@and-fgt-ha.akka.eu:9090
-
-## required for selfsigned certificate
-#    - npm set strict-ssl false
     - npm install -g osmtogeojson
     - mvn verify
     - echo "Unit tests execution complete."
@@ -91,12 +72,9 @@ deploy-job:
   tags:
     - mobidata-processor1
   before_script:
-#    - echo "$CI_AKKA_PASSWORD" | docker login $CI_REGISTRY -u "$CI_AKKA_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
   script:
     - echo "Deploying application..."
-#    - docker build -t gitlab.akka.eu:4567/$GROUP_GITLAB/$REPO .
-#    - docker push gitlab.akka.eu:4567/$GROUP_GITLAB/$REPO
     - docker build -t wanam/$REPO:latest .
     - docker push wanam/$REPO:latest
     - echo "Application successfully deployed."
