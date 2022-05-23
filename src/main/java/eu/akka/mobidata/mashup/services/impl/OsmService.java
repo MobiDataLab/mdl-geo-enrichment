@@ -1,12 +1,8 @@
 package eu.akka.mobidata.mashup.services.impl;
 
-import eu.akka.mobidata.mashup.config.EndPointConfig;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -20,22 +16,17 @@ import java.nio.file.Path;
  * @author Mohamed.KARAMI
  */
 @Service
-public class OsmService implements IOsmService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OsmService.class);
-
-    @Autowired
-    EndPointConfig endPointConfig;
+public class OsmService extends BaseService implements IOsmService {
 
     /**
      * Finds and returns bus stops in geojson format.
      *
      * @return the bus stops if found, or null if not found
      */
-    public String getGeoJsonBusStops(String url) {
+    public String getGeoJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = getJsonBusStops(url);
+            String navResponse = getJsonBusStops(url, sourceToken);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
@@ -52,10 +43,11 @@ public class OsmService implements IOsmService {
      *
      * @return the bus stops if found, or null if not found
      */
-    public String getJsonBusStops(String url) {
+    public String getJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            return endPointConfig.getRestTemplate().getForObject(url, String.class);
+            this.token = sourceToken;
+            return restTemplate.getForObject(url, String.class);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }

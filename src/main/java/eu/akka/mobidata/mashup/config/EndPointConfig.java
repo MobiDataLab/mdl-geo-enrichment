@@ -1,11 +1,7 @@
 package eu.akka.mobidata.mashup.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
 
 /**
  * Handles the apis endpoints configuration.
@@ -19,18 +15,6 @@ public class EndPointConfig {
     private String navitiaUri;
     private String overpassUri;
     private String wikidataUri;
-
-    private RestTemplate restTemplate;
-
-    public RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-            this.restTemplate = restTemplateBuilder
-                    .setReadTimeout(Duration.ofSeconds(60))
-                    .build();
-        }
-        return this.restTemplate;
-    }
 
     public String getNavitiaUri() {
         return navitiaUri;

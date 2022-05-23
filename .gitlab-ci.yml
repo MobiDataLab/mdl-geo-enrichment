@@ -34,7 +34,7 @@ build-job:
   stage: build
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - elksiba
+    - mobidata-processor1
   script:
 #    - echo "Installing osgeo repository certificates, needed for selfsigned certificate"
 #    - which java
@@ -53,7 +53,7 @@ unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - elksiba
+    - mobidata-processor1
   script:
     - echo "Running unit tests..."
     - export APT_CACHE_DIR=apt-cache && mkdir -pv $APT_CACHE_DIR
@@ -75,10 +75,10 @@ package-job:   # This job runs in the test stage.
   stage: package    # It only starts when the job in the build stage completes successfully.
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - elksiba
+    - mobidata-processor1
   script:
     - echo "Packaging application..."
-    - mvn clean package -B -Dspring.profiles.active=dev -DskipTests
+    - mvn clean package -B -Dspring.profiles.active=prod -DskipTests
     - echo "Application packaged !"
   only:
     - main
@@ -89,7 +89,7 @@ deploy-job:
   services:
     - docker:dind
   tags:
-    - elksiba
+    - mobidata-processor1
   before_script:
 #    - echo "$CI_AKKA_PASSWORD" | docker login $CI_REGISTRY -u "$CI_AKKA_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin

@@ -40,16 +40,18 @@ public class JourneyController {
 
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String getJourneys(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
-                       @ApiParam(value = "API format", required = true) APIFormatEnum apiFormat,
-                       @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
+    String getJourneys(@ApiParam(value = "Target API authorization token", example = "55af740c-e0e9-4f2b-9387-3bb81a8c7bd4") String targetToken,
                        @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
-                       @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "48.8775033,2.4400646") String toCoordinates) {
+                       @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "48.8775033,2.4400646") String toCoordinates,
+                       @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
+                       @ApiParam(value = "API format", allowableValues = "GeoJson, OSM", required = true) APIFormatEnum apiFormat,
+                       @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
+                       @ApiParam(value = "Source API authorization token") String sourceToken) {
 
         apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
 
         // Get journeys from Navitia
-        String journeys = navitiaService.findJsonJourneys(fromCoordinates, toCoordinates);
+        String journeys = navitiaService.findJsonJourneys(targetToken, fromCoordinates, toCoordinates);
 
         if (journeys == null) {
             throw new MobilityDataNotFoundException("No Navitia journeys found!");
@@ -57,7 +59,7 @@ public class JourneyController {
 
         if (APIFormatEnum.OSM.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonBusStops(apiUrl);
+            String busStops = osmService.getJsonBusStops(apiUrl, sourceToken);
             JSONArray osmElements = JsonPath.read(busStops, "$.elements");
 
             // aggregate and enrich navitia's bus stops from osm response
@@ -65,7 +67,7 @@ public class JourneyController {
             return osmManager.aggregateBusStops(osmElements, enrichAttributes);
         } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonBusStops(apiUrl);
+            String osmBusStops = osmService.getGeoJsonBusStops(apiUrl, sourceToken);
 
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
