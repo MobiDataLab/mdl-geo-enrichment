@@ -1,15 +1,18 @@
 server:
   port: 8100
-
+  max-http-header-size: 10MB
 
 spring:
   profiles:
-    active: dev
+    active: prod
 
 ---
 
 spring:
-  profiles: dev
+  config:
+    activate:
+      on-profile: dev
+
 endpoints:
   navitia-uri: https://api.navitia.io/v1
   overpass-uri: https://www.overpass-api.de/api
@@ -19,9 +22,6 @@ tokens:
   navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
   navitia-doc-token: 3b036afe-0110-4202-b9ed-99718476c2e0
 
-#  navitia-uri: https://musicbrainz.org
-#  overpass-uri: https://coverartarchive.org
-#  wikidata-uri: https://en.wikipedia.org
 proxy:
   proxy-host: and-fgt-ha.akka.eu
   proxy-port: 9090
@@ -29,11 +29,42 @@ proxy:
 ---
 
 spring:
-  profiles: integration-test
+  config:
+    activate:
+      on-profile: integration-test
+
 endpoints:
-  navitia-uri: http://localhost:8101
-  wikidata-uri: http://localhost:8102
-  overpass-uri: http://localhost:8103
-proxy:
-  proxy-host: and-fgt-ha.akka.eu
-  proxy-port: 9090
+  navitia-uri: https://api.navitia.io/v1
+  overpass-uri: https://www.overpass-api.de/api
+  wikidata-uri: https://en.wikipedia.org
+
+tokens:
+  navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
+  navitia-doc-token: 3b036afe-0110-4202-b9ed-99718476c2e0
+
+#proxy:
+#  proxy-host: and-fgt-ha.akka.eu
+#  proxy-port: 9090
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+server:
+  port: 80
+
+endpoints:
+  navitia-uri: https://api.navitia.io/v1
+  overpass-uri: https://www.overpass-api.de/api
+  wikidata-uri: https://en.wikipedia.org
+
+tokens:
+  navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
+  navitia-doc-token: 3b036afe-0110-4202-b9ed-99718476c2e0
+
+#proxy:
+#  proxy-host: and-fgt-ha.akka.eu
+#  proxy-port: 9090

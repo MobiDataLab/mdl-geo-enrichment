@@ -1,9 +1,9 @@
 package eu.akka.mobidata.mashup.controllers;
 
-import eu.akka.mobidata.mashup.domain.navitia.NavitiaContainer;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
-import eu.akka.mobidata.mashup.services.NavitiaService;
+import eu.akka.mobidata.mashup.services.interfaces.INavitiaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping("/api/v1/navitia")
+@RequestMapping(value = "/api/v1/navitia", produces = MediaType.APPLICATION_JSON_VALUE)
 public class LineController {
 
     @Autowired
-    private NavitiaService navitiaService;
+    private INavitiaService navitiaService;
 
     /**
      * Returns the aggregated information for lines.
@@ -28,9 +28,9 @@ public class LineController {
      */
     @RequestMapping(value = "getLines", method = RequestMethod.GET)
     public @ResponseBody
-    NavitiaContainer getLines() {
+    String getLines() {
         // Get lines from Navitia
-        NavitiaContainer lines = navitiaService.findLines();
+        String lines = navitiaService.findLines();
         if (lines == null) {
             throw new MobilityDataNotFoundException("No Navitia lines found!");
         }
