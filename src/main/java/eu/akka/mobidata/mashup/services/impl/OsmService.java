@@ -46,7 +46,7 @@ public class OsmService extends BaseService implements IOsmService {
     public String getJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            this.token = sourceToken;
+            setToken(sourceToken);
             return restTemplate.getForObject(url, String.class);
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());

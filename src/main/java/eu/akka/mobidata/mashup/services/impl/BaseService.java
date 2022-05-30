@@ -26,14 +26,22 @@ public class BaseService {
     @Qualifier("MdRestTemplate")
     RestTemplate restTemplate;
 
-    String token;
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     @Bean(name = "MdRestTemplate")
     RestTemplate MdRestTemplate(RestTemplateBuilder builder) {
         return builder.rootUri(endPointConfig.getNavitiaUri())
                 .additionalInterceptors((request, body, execution) -> {
                     if (token != null) {
-                        request.getHeaders().add("Authorization", token);
+                        request.getHeaders().add("Authorization", getToken());
                     }
                     return execution.execute(request, body);
                 }).setReadTimeout(Duration.ofSeconds(60)).build();
