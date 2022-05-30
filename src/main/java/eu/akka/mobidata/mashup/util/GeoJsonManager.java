@@ -3,13 +3,13 @@ package eu.akka.mobidata.mashup.util;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
-import net.minidev.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
@@ -112,7 +112,7 @@ public class GeoJsonManager {
 
         try {
             // create empty equipments array if not exist for all stop_point
-            this.targetApiContext.put("$..stop_point[?(!@.equipments)]", "equipments", new JSONArray());
+            this.targetApiContext.put("$..stop_point", "enriched_properties", new LinkedHashMap());
         } catch (Exception ignored) {
         }
 
@@ -149,32 +149,19 @@ public class GeoJsonManager {
                     .ifPresent(feature -> {
                         // remove white spaces from the attributes list then enrich the additional properties
                         Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
-                            Object propertyValue = feature.getProperty(attribute).getValue();
+                            Property property = feature.getProperty(attribute);
                             // add new attribute to navitia's bus stop equipments
-                            if ("yes".equals(propertyValue)) {
-                                setAttribute(stopPointNavitia, attribute);
-                            }
+                            setAttribute(stopPointNavitia, property);
                         });
                         LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia.get("name"));
                     });
         }
     }
 
-    public static void setAttribute(LinkedHashMap stopPointNavitia, String attribute) {
-        JSONArray equipments = (JSONArray) stopPointNavitia.get("equipments");
-
-        switch (attribute) {
-            case "wheelchair":
-                String has_attribute = "has_wheelchair_boarding";
-                if (equipments.stream().noneMatch(equipment -> equipment.equals(has_attribute))) {
-                    equipments.appendElement(has_attribute);
-                }
-                break;
-            default:
-                has_attribute = "has_" + attribute;
-                if (equipments.stream().noneMatch(equipment -> equipment.equals(has_attribute))) {
-                    equipments.appendElement(has_attribute);
-                }
+    public static void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
+        LinkedHashMap enriched_properties = (LinkedHashMap) stopPointNavitia.get("enriched_properties");
+        if (property.getValue() != null) {
+            enriched_properties.put(property.getName(), property.getValue());
         }
     }
 }

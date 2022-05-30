@@ -1,11 +1,14 @@
-# docker image to be used for build & test MobiDataMashup
-FROM adoptopenjdk/openjdk11:alpine-jre
+# docker image to be used for MobiDataMashup's deployment
+FROM alpine:latest
 
-RUN apk add nodejs npm \
+WORKDIR /usr/app
+COPY target/*.jar /usr/app/app.jar
+
+# install openjdk11-jre & nodejs & osmtogeojson module
+RUN apk --no-cache add openjdk11-jre --repository=http://dl-cdn.alpinelinux.org/alpine/latest-stable/community \
+    && apk add nodejs npm \
     && npm install -g osmtogeojson
 
-RUN mkdir /app
-WORKDIR /app
-COPY target/*.jar app.jar
+# expose required ports
 EXPOSE 80 443
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/usr/app/app.jar"]

@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
+import org.opengis.feature.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedHashMap;
 
 /**
  * Test Osm to GeoJson conversion & Navitia api enrichment.
@@ -51,10 +53,10 @@ public class NavitiaToulouseTest {
         ResponseEntity<String> response = restTemplate.getForEntity(
                 new URL(HOST + NAVITIA_REQ).toString(), String.class);
 
-        JSONArray equipments = JsonPath.read(response.getBody(), "$..stop_point.equipments");
+        JSONArray enriched_properties = JsonPath.read(response.getBody(), "$..stop_point.enriched_properties");
 
         // assert there is at least one point was enriched with shelter attribute
-        Assertions.assertTrue(equipments.stream().anyMatch(eqs -> ((JSONArray) eqs).stream().anyMatch(eq -> eq.equals("has_shelter"))));
+        Assertions.assertTrue(enriched_properties.stream().anyMatch(eqs -> ((LinkedHashMap) eqs).get("shelter") != null));
     }
 
     @DisplayName("Test OSM format conversion")
