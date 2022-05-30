@@ -48,6 +48,7 @@ public class NavitiaService extends BaseService implements INavitiaService {
     public String findJsonJourneys(String targetToken, String fromCoordinates, String toCoordinates) {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
+            setToken(targetToken);
             String[] from = fromCoordinates.split(",");
             String[] to = toCoordinates.split(",");
 
@@ -59,7 +60,6 @@ public class NavitiaService extends BaseService implements INavitiaService {
             urlRequest = urlRequest.replace("to_coord", to[1] + ";" + to[0]);
 
             String url = URLDecoder.decode(endPointConfig.getNavitiaUri().concat(urlRequest), StandardCharsets.UTF_8);
-            this.token = targetToken;
             return restTemplate.getForObject(url, String.class);
 
         } catch (RestClientException e) {
