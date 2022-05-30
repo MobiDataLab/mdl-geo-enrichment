@@ -26,21 +26,17 @@ build-job:
   stage: build
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - mobidata-processor1
+    - elksiba-local
   script:
     - echo "Compiling the code..."
     - mvn install -B -DskipTests
     - echo "Compile complete!"
-# cannot be used with external runners
-#  artifacts:
-#    paths:
-#      - target/
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - mobidata-processor1
+    - elksiba-local
   script:
     - echo "Running unit tests..."
     - export APT_CACHE_DIR=apt-cache && mkdir -pv $APT_CACHE_DIR
@@ -51,12 +47,16 @@ unit-test-job:   # This job runs in the test stage.
     - npm install -g osmtogeojson
     - mvn verify
     - echo "Unit tests execution complete."
+  # cannot be used with external runners
+  artifacts:
+    paths:
+      - target/
 
 package-job:   # This job runs in the test stage.
   stage: package    # It only starts when the job in the build stage completes successfully.
   image: maven:3.8.5-openjdk-11-slim
   tags:
-    - mobidata-processor1
+    - elksiba-local
   script:
     - echo "Packaging application..."
     - mvn clean package -B -Dspring.profiles.active=prod -DskipTests
@@ -70,7 +70,7 @@ deploy-job:
   services:
     - docker:dind
   tags:
-    - mobidata-processor1
+    - elksiba-local
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
   script:

@@ -22,9 +22,9 @@ tokens:
   navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
   navitia-doc-token: 3b036afe-0110-4202-b9ed-99718476c2e0
 
-proxy:
-  proxy-host: and-fgt-ha.akka.eu
-  proxy-port: 9090
+#proxy:
+#  proxy-host: and-fgt-ha.akka.eu
+#  proxy-port: 9090
 
 ---
 

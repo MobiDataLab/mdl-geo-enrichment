@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.opengis.feature.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public class OsmManager {
 
         try {
             // create empty equipments array if not exist for all stop_point
-            this.targetApiContext.put("$..stop_point[?(!@.equipments)]", "equipments", new JSONArray());
+            this.targetApiContext.put("$..stop_point", "enriched_properties", new LinkedHashMap());
         } catch (Exception ignored) {
         }
 
@@ -82,11 +83,9 @@ public class OsmManager {
 
                     // remove white spaces from the attributes list then enrich the additional properties
                     Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
-                        Object propertyValue = tags.get(attribute);
+                        Property property = (Property) tags.get(attribute);
                         // add new attribute to navitia's bus stop equipments
-                        if ("yes".equals(propertyValue)) {
-                            GeoJsonManager.setAttribute(stopPointNavitia, attribute);
-                        }
+                        GeoJsonManager.setAttribute(stopPointNavitia, property);
                     });
                     LOGGER.debug("Bus stop : " + tags.get("name") + " v" + element.get("version") + " is close to: " + stopPointNavitia.get("name"));
                 });
