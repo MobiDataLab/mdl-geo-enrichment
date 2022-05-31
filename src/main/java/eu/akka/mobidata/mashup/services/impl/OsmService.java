@@ -3,6 +3,7 @@ package eu.akka.mobidata.mashup.services.impl;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -46,8 +47,14 @@ public class OsmService extends BaseService implements IOsmService {
     public String getJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            setToken(sourceToken);
-            return restTemplate.getForObject(url, String.class);
+            HttpHeaders header = new HttpHeaders();
+            header.setContentType(MediaType.APPLICATION_JSON);
+            header.set("authorization", sourceToken);
+
+            HttpEntity<String> entity = new HttpEntity<>(header);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity, String.class);
+            return response.getBody();
+
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }

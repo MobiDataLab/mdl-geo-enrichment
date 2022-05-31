@@ -109,25 +109,22 @@ public class GeoJsonManager {
     }
 
     public String aggregateBusStops(String attributes) {
-
-        try {
-            // create empty equipments array if not exist for all stop_point
-            this.targetApiContext.put("$..stop_point", "enriched_properties", new LinkedHashMap());
-        } catch (Exception ignored) {
-        }
-
         List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
+
         // for the current navitia stop point we will look for the closest bugs tops on osm line
-        stopPoints.parallelStream().forEach(stopPoint ->
+        stopPoints.parallelStream().forEach(stopPointNavitia ->
         {
-            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("address")).get("coord");
+            // create empty enriched properties array
+            stopPointNavitia.put("enriched_properties", new LinkedHashMap());
+
+            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord");
             Coordinate coordinate = new Coordinate(
                     Double.parseDouble(coords.get("lon").toString()),
                     Double.parseDouble(coords.get("lat").toString()));
 
             Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
 
-            enrichWithProperties(attributes, stopPoint, geoNav);
+            enrichWithProperties(attributes, stopPointNavitia, geoNav);
         });
 
         return targetApiContext.jsonString();
@@ -158,7 +155,7 @@ public class GeoJsonManager {
         }
     }
 
-    public static void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
+    private void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
         LinkedHashMap enriched_properties = (LinkedHashMap) stopPointNavitia.get("enriched_properties");
         if (property.getValue() != null) {
             enriched_properties.put(property.getName(), property.getValue());
