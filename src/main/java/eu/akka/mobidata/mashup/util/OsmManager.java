@@ -5,7 +5,6 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,24 +33,21 @@ public class OsmManager {
                 .map(element -> (LinkedHashMap) element)
                 .collect(Collectors.toList());
 
-        try {
-            // create empty equipments array if not exist for all stop_point
-            this.targetApiContext.put("$..stop_point", "enriched_properties", new LinkedHashMap());
-        } catch (Exception ignored) {
-        }
-
         List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
         // for the current navitia stop point we will look for the closest bugs tops on osm line
-        stopPoints.parallelStream().forEach(stopPoint ->
+        stopPoints.parallelStream().forEach(stopPointNavitia ->
         {
-            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("address")).get("coord");
+            // create empty enriched properties array
+            stopPointNavitia.put("enriched_properties", new LinkedHashMap());
+
+            LinkedHashMap coords = (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord");
             Coordinate coordinate = new Coordinate(
                     Double.parseDouble(coords.get("lon").toString()),
                     Double.parseDouble(coords.get("lat").toString()));
 
             Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
 
-            enrichPoint(attributes, stopPoint, geoNav, elements);
+            enrichPoint(attributes, stopPointNavitia, geoNav, elements);
         });
 
         return targetApiContext.jsonString();
@@ -83,9 +79,11 @@ public class OsmManager {
 
                     // remove white spaces from the attributes list then enrich the additional properties
                     Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
-                        Property property = (Property) tags.get(attribute);
-                        // add new attribute to navitia's bus stop equipments
-                        GeoJsonManager.setAttribute(stopPointNavitia, property);
+                        String property = (String) tags.get(attribute);
+                        if (property != null) {
+                            // add new attribute to navitia's bus stop equipments
+                            ((LinkedHashMap) stopPointNavitia.get("enriched_properties")).put(attribute, property);
+                        }
                     });
                     LOGGER.debug("Bus stop : " + tags.get("name") + " v" + element.get("version") + " is close to: " + stopPointNavitia.get("name"));
                 });

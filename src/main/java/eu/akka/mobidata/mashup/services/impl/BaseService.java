@@ -4,12 +4,8 @@ import eu.akka.mobidata.mashup.config.EndPointConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
 
 /**
  * Base Service for mobidata api services
@@ -23,28 +19,10 @@ public class BaseService {
     EndPointConfig endPointConfig;
 
     @Autowired
-    @Qualifier("MdRestTemplate")
     RestTemplate restTemplate;
 
-    private String token;
-
-    public String getToken() {
-        return token;
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    @Bean(name = "MdRestTemplate")
-    RestTemplate MdRestTemplate(RestTemplateBuilder builder) {
-        return builder.rootUri(endPointConfig.getNavitiaUri())
-                .additionalInterceptors((request, body, execution) -> {
-                    if (token != null) {
-                        request.getHeaders().add("Authorization", getToken());
-                    }
-                    return execution.execute(request, body);
-                }).setReadTimeout(Duration.ofSeconds(60)).build();
-    }
-
 }
