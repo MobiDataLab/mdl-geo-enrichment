@@ -14,7 +14,7 @@ public interface IOsmService {
      * @param sourceToken source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getGeoJsonBusStops(String url, String sourceToken);
+    String getGeoJsonFromOsmBusStops(String url, String sourceToken);
 
     /**
      * Finds and returns bus stops in json format.
@@ -23,5 +23,5 @@ public interface IOsmService {
      * @param sourceToken source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getJsonBusStops(String url, String sourceToken);
+    String getGeoJsonBusStops(String url, String sourceToken);
 }

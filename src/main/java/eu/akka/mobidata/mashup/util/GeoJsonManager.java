@@ -85,6 +85,7 @@ public class GeoJsonManager {
         SimpleFeatureType featureType = featureJSON.readFeatureCollectionSchema(busStops, false);
 
         if (featureType.getAttributeCount() < 1) {
+            // try to convert to geojson
             busStops = convertOsmToGeoJson(busStops);
             featureType = featureJSON.readFeatureCollectionSchema(busStops, false);
 
@@ -204,7 +205,7 @@ public class GeoJsonManager {
 
     private void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
         LinkedHashMap enriched_properties = (LinkedHashMap) stopPointNavitia.get("enriched_properties");
-        if (property.getValue() != null) {
+        if (property != null && property.getValue() != null) {
             enriched_properties.put(property.getName(), property.getValue());
         }
     }
