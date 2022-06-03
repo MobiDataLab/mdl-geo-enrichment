@@ -3,6 +3,7 @@ package eu.akka.mobidata.mashup.services.impl;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.Json2PojoTools;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -24,6 +25,7 @@ public class OsmService extends BaseService implements IOsmService {
      *
      * @return the bus stops if found, or null if not found
      */
+    @Cacheable("bus-stops-geojson")
     public String getGeoJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
@@ -44,6 +46,7 @@ public class OsmService extends BaseService implements IOsmService {
      *
      * @return the bus stops if found, or null if not found
      */
+    @Cacheable("bus-stops-json")
     public String getJsonBusStops(String url, String sourceToken) {
         LOGGER.debug("baseURI: {}", url);
         try {
@@ -52,7 +55,7 @@ public class OsmService extends BaseService implements IOsmService {
             header.set("authorization", sourceToken);
 
             HttpEntity<String> entity = new HttpEntity<>(header);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             return response.getBody();
 
         } catch (RestClientException e) {

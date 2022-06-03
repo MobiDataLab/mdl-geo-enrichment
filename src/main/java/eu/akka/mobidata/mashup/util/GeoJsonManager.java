@@ -108,7 +108,7 @@ public class GeoJsonManager {
         });
     }
 
-    public String aggregateBusStops(String attributes) {
+    public String aggregateNavitiaBusStops(String attributes) {
         List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
 
         // for the current navitia stop point we will look for the closest bugs tops on osm line
@@ -124,13 +124,13 @@ public class GeoJsonManager {
 
             Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
 
-            enrichWithProperties(attributes, stopPointNavitia, geoNav);
+            enrichNavitiaWithProperties(attributes, stopPointNavitia, geoNav);
         });
 
         return targetApiContext.jsonString();
     }
 
-    public void enrichWithProperties(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNavitia) {
+    public void enrichNavitiaWithProperties(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNavitia) {
         // get the closest feature/point to Navitia's bus stop and enrich it
         Object stopId = stopPointNavitia.get("id");
         if (stopId != null) {
@@ -151,6 +151,53 @@ public class GeoJsonManager {
                             setAttribute(stopPointNavitia, property);
                         });
                         LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia.get("name"));
+                    });
+        }
+    }
+
+    public String aggregateHereBusStops(String attributes) {
+        List<LinkedHashMap> places = this.targetApiContext.read("$..place");
+
+        // for the current navitia stop point we will look for the closest bugs tops on osm line
+        places.parallelStream().forEach(place ->
+        {
+            // create empty enriched properties array
+            place.put("enriched_properties", new LinkedHashMap());
+
+            LinkedHashMap location = (LinkedHashMap) place.get("location");
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(location.get("lng").toString()),
+                    Double.parseDouble(location.get("lat").toString()));
+
+            Geometry geoHere = GeometryTools.geometryFactory.createPoint(coordinate);
+
+            enrichHereWithProperties(attributes, place, geoHere);
+        });
+
+        return targetApiContext.jsonString();
+    }
+
+    public void enrichHereWithProperties(String attributes, LinkedHashMap place, Geometry geoHere) {
+        // get the closest feature/point to Navitia's bus stop and enrich it
+        Object placeName = place.get("name");
+        if (placeName != null) {
+            simpleFeatureList.parallelStream()
+                    .filter(feature ->
+                            feature.getProperty("name").getValue() != null
+                                    && geoHere.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
+                                    && (place.get("name").equals(feature.getProperty("name").getValue())
+                                    || geoHere.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
+                    )
+                    // get latest version/changeset only
+                    .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
+                    .ifPresent(feature -> {
+                        // remove white spaces from the attributes list then enrich the additional properties
+                        Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
+                            Property property = feature.getProperty(attribute);
+                            // add new attribute to navitia's bus stop equipments
+                            setAttribute(place, property);
+                        });
+                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + placeName);
                     });
         }
     }

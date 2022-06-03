@@ -4,9 +4,8 @@ FROM alpine:latest
 WORKDIR /usr/app
 COPY target/*.jar /usr/app/app.jar
 
-# install openjdk11-jre & nodejs & osmtogeojson module
-RUN apk --no-cache add openjdk11-jre --repository=http://dl-cdn.alpinelinux.org/alpine/latest-stable/community \
-    && apk --no-cache add nodejs npm \
+# install openjdk11-jre & npm & osmtogeojson module
+RUN apk add --no-cache openjdk11-jre nodejs npm \
     && npm install -g osmtogeojson
 
 # expose required ports

@@ -18,6 +18,7 @@ endpoints:
   navitia-uri: https://api.navitia.io/v1
   overpass-uri: https://www.overpass-api.de/api
   wikidata-uri: https://en.wikipedia.org
+  here-uri: https://transit.router.hereapi.com/v8
 
 tokens:
   navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
@@ -38,6 +39,7 @@ endpoints:
   navitia-uri: https://api.navitia.io/v1
   overpass-uri: https://www.overpass-api.de/api
   wikidata-uri: https://en.wikipedia.org
+  here-uri: https://transit.router.hereapi.com/v8
 
 tokens:
   navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
@@ -61,6 +63,7 @@ endpoints:
   navitia-uri: https://api.navitia.io/v1
   overpass-uri: https://www.overpass-api.de/api
   wikidata-uri: https://en.wikipedia.org
+  here-uri: https://transit.router.hereapi.com/v8
 
 tokens:
   navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4

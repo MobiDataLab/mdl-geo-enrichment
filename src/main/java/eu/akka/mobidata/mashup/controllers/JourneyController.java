@@ -40,7 +40,7 @@ public class JourneyController {
 
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    String getJourneys(@ApiParam(value = "Target API authorization token", example = "55af740c-e0e9-4f2b-9387-3bb81a8c7bd4") String targetToken,
+    String getJourneys(@ApiParam(value = "Navitia API authorization token", example = "55af740c-e0e9-4f2b-9387-3bb81a8c7bd4") String targetToken,
                        @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
                        @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "48.8775033,2.4400646") String toCoordinates,
                        @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
@@ -71,7 +71,7 @@ public class JourneyController {
 
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
-            return geoJsonManager.aggregateBusStops(enrichAttributes);
+            return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
 
         }
         return null;
