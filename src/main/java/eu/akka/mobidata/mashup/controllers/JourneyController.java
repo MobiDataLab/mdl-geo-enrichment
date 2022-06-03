@@ -59,7 +59,7 @@ public class JourneyController {
 
         if (APIFormatEnum.OSM.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonBusStops(apiUrl, sourceToken);
+            String busStops = osmService.getGeoJsonBusStops(apiUrl, sourceToken);
             JSONArray osmElements = JsonPath.read(busStops, "$.elements");
 
             // aggregate and enrich navitia's bus stops from osm response
@@ -67,7 +67,7 @@ public class JourneyController {
             return osmManager.aggregateBusStops(osmElements, enrichAttributes);
         } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonBusStops(apiUrl, sourceToken);
+            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
 
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
