@@ -80,10 +80,10 @@ public class HereController {
     @RequestMapping(value = "getNearStations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String getNearStations(@ApiParam(value = "Here API authorization key", example = "0PMpb1W_5iihYGu7UrBWsR8fI6Utopf52hFBKOwl7Xc") String apiKey,
-                     @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8644876,2.3605645") String coordinates,
+                     @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.876892,2.352623") String coordinates,
                      @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                      @ApiParam(value = "API format", allowableValues = "GeoJson, OSM", required = true) APIFormatEnum apiFormat,
-                     @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway](48.8445631,2.3033581,48.8975033,2.4100646);node[railway](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
+                     @ApiParam(value = "API full url", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway](48.856892, 2.332623,48.896892, 2.372623);node[railway](48.856892, 2.332623,48.896892, 2.372623);out%20meta;") String apiUrl,
                      @ApiParam(value = "Source API authorization token") String sourceToken) {
 
         apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);

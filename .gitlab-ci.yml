@@ -1,30 +1,29 @@
+image: alpine:latest
+
+before_script: # install required packages for build and execution
+  - apk add openjdk11 maven nodejs npm
+  - npm install -g osmtogeojson
+
 stages:
   - build
   - test
   - package
   - deploy
 
-# cache maven repo & nodejs modules
+# cache maven repo
 cache:
   paths:
-    - apt-cache/
     - .m2/repository
-    - node_modules/
     - target/
 
 variables:
-  JAVA_HOME: /usr/local/openjdk-11
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: integration-test
-  GROUP_GITLAB: mohamed.karami
-  APP_NAME: mobidata-mashup
   REPO: mobidatalab
 
 build-job:
   stage: build
-  image: maven:3.8.5-openjdk-11-slim
   tags:
     - elksiba-local
   script:
@@ -32,29 +31,20 @@ build-job:
     - mvn install -B -DskipTests
     - echo "Compile complete!"
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  image: maven:3.8.5-openjdk-11-slim
+unit-test-job: # This job runs integration tests
+  stage: test
   tags:
     - elksiba-local
   script:
     - echo "Running unit tests..."
-    - export APT_CACHE_DIR=apt-cache && mkdir -pv $APT_CACHE_DIR
-    - DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y unzip nodejs npm > /dev/null
-    - apt update
-    - apt -o dir::cache::archives="apt-cache" install -y unzip nodejs npm
-    - nodejs --version
-    - npm install -g osmtogeojson
     - mvn verify
     - echo "Unit tests execution complete."
-  # cannot be used with external runners
   artifacts:
     paths:
       - target/
 
-package-job:   # This job runs in the test stage.
+package-job: # This job runs in the test stage.
   stage: package    # It only starts when the job in the build stage completes successfully.
-  image: maven:3.8.5-openjdk-11-slim
   tags:
     - elksiba-local
   script:
@@ -81,4 +71,6 @@ deploy-job:
   only:
     - main
   after_script:
+    - docker stop $(docker ps -q --filter expose=80) # stop the container of the old image
+    - docker run -d -p 80:80 wanam/mobidatalab:latest --pull=always
     - docker logout
