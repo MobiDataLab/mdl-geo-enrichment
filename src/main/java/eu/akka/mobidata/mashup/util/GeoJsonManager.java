@@ -149,7 +149,9 @@ public class GeoJsonManager {
                         Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
                             Property property = feature.getProperty(attribute);
                             // add new attribute to navitia's bus stop equipments
-                            setAttribute(stopPointNavitia, property);
+                            if (property != null && property.getValue() != null) {
+                                setAttribute(stopPointNavitia, property);
+                            }
                         });
                         LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia.get("name"));
                     });
@@ -196,7 +198,9 @@ public class GeoJsonManager {
                         Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
                             Property property = feature.getProperty(attribute);
                             // add new attribute to navitia's bus stop equipments
-                            setAttribute(place, property);
+                            if (property != null && property.getValue() != null) {
+                                setAttribute(place, property);
+                            }
                         });
                         LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + placeName);
                     });
@@ -205,8 +209,6 @@ public class GeoJsonManager {
 
     private void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
         LinkedHashMap enriched_properties = (LinkedHashMap) stopPointNavitia.get("enriched_properties");
-        if (property != null && property.getValue() != null) {
-            enriched_properties.put(property.getName(), property.getValue());
-        }
+        enriched_properties.put(property.getName(), property.getValue());
     }
 }
