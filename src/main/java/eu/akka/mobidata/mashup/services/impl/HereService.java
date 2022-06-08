@@ -1,6 +1,7 @@
 package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.services.interfaces.IHereService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,17 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class HereService extends BaseService implements IHereService {
 
-    private final String HERE_ROUTE_REQUEST = "/routes?apiKey=API_KEY&origin=ORIGIN&destination=DESTINATION&return=polyline&mode=fastest;bus";
+    private final String HERE_ROUTE_REQUEST = "/routes?apiKey=API_KEY&origin=ORIGIN&destination=DESTINATION&return=polyline&modes=bus";
     private final String HERE_STATIONS_REQUEST = "/stations?apiKey=API_KEY&in=LOCATION&r=1000&return=transport&maxPlaces=50";
 
     @Override
     public String findHereRoutes(String apiKey, String fromCoordinates, String toCoordinates) {
-        String request = HERE_ROUTE_REQUEST.replace("API_KEY", apiKey).replace("ORIGIN", fromCoordinates).replace("DESTINATION", toCoordinates);
+        String request = HERE_ROUTE_REQUEST
+                .replace("API_KEY", apiKey)
+                .replace("ORIGIN", StringUtils.deleteWhitespace(fromCoordinates))
+                .replace("DESTINATION", StringUtils.deleteWhitespace(toCoordinates));
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
-
+        LOGGER.debug("baseURI: {}", url);
         HttpHeaders header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
 
@@ -33,9 +37,9 @@ public class HereService extends BaseService implements IHereService {
 
     @Override
     public String findNearStations(String apiKey, String coordinates) {
-        String request = HERE_STATIONS_REQUEST.replace("API_KEY", apiKey).replace("LOCATION", coordinates);
+        String request = HERE_STATIONS_REQUEST.replace("API_KEY", apiKey).replace("LOCATION", coordinates.strip());
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
-
+        LOGGER.debug("baseURI: {}", url);
         HttpHeaders header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
 

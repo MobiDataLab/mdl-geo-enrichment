@@ -72,7 +72,6 @@ public class JourneyController {
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
             return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
-
         }
         return null;
     }

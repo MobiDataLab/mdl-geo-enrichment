@@ -10,9 +10,12 @@ public interface INavitiaService {
     /**
      * Finds and returns lines.
      *
+     * @param targetToken     target Token
+     * @param fromCoordinates from Coordinates
+     * @param toCoordinates   to Coordinates
      * @return the lines if found, or null if not found
      */
-    String findLines();
+    String findLines(String targetToken, String fromCoordinates, String toCoordinates);
 
     /**
      * Finds and returns journeys.
