@@ -56,9 +56,9 @@ package-job: # This job runs in the test stage.
 
 deploy-job:
   stage: deploy
-  image: docker:latest
+  image: docker:stable
   services:
-    - docker:dind
+    - docker:stable-dind
   tags:
     - elksiba-local
   before_script:
