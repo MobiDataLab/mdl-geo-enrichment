@@ -2,11 +2,10 @@ package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
 import eu.akka.mobidata.mashup.services.interfaces.INavitiaService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -43,17 +42,17 @@ public class NavitiaService extends BaseService implements INavitiaService {
     /**
      * Finds and returns journeys.
      *
-     * @param targetToken target Token
+     * @param targetToken     target Token
      * @param fromCoordinates from Coordinates
-     * @param toCoordinates to Coordinates
+     * @param toCoordinates   to Coordinates
      * @return the journeys if found, or null if not found
      */
     public String findJsonJourneys(String targetToken, String fromCoordinates, String toCoordinates) {
         LOGGER.debug("baseURI: {}", endPointConfig.getNavitiaUri());
         try {
             LOGGER.error("TARGET_TOKEN == " + targetToken);
-            String[] from = fromCoordinates.split(",");
-            String[] to = toCoordinates.split(",");
+            String[] from = StringUtils.deleteWhitespace(fromCoordinates).split(",");
+            String[] to = StringUtils.deleteWhitespace(toCoordinates).split(",");
 
             if (from.length < 2 && to.length < 2) {
                 throw new BadRequestException("Malformed from/to coordinates!");
@@ -69,7 +68,7 @@ public class NavitiaService extends BaseService implements INavitiaService {
             header.set("authorization", targetToken);
 
             HttpEntity<String> entity = new HttpEntity<>(header);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             return response.getBody();
 
         } catch (RestClientException e) {

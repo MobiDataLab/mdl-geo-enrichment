@@ -1,6 +1,7 @@
 package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.services.interfaces.IHereService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,10 @@ public class HereService extends BaseService implements IHereService {
 
     @Override
     public String findHereRoutes(String apiKey, String fromCoordinates, String toCoordinates) {
-        String request = HERE_ROUTE_REQUEST.replace("API_KEY", apiKey).replace("ORIGIN", fromCoordinates).replace("DESTINATION", toCoordinates);
+        String request = HERE_ROUTE_REQUEST
+                .replace("API_KEY", apiKey)
+                .replace("ORIGIN", StringUtils.deleteWhitespace(fromCoordinates))
+                .replace("DESTINATION", StringUtils.deleteWhitespace(toCoordinates));
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
 
         HttpHeaders header = new HttpHeaders();
@@ -33,7 +37,7 @@ public class HereService extends BaseService implements IHereService {
 
     @Override
     public String findNearStations(String apiKey, String coordinates) {
-        String request = HERE_STATIONS_REQUEST.replace("API_KEY", apiKey).replace("LOCATION", coordinates);
+        String request = HERE_STATIONS_REQUEST.replace("API_KEY", apiKey).replace("LOCATION", coordinates.strip());
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
 
         HttpHeaders header = new HttpHeaders();
