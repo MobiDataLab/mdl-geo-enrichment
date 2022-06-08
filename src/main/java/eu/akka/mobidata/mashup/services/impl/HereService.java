@@ -26,7 +26,7 @@ public class HereService extends BaseService implements IHereService {
                 .replace("ORIGIN", StringUtils.deleteWhitespace(fromCoordinates))
                 .replace("DESTINATION", StringUtils.deleteWhitespace(toCoordinates));
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
-
+        LOGGER.debug("baseURI: {}", url);
         HttpHeaders header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
 
@@ -39,7 +39,7 @@ public class HereService extends BaseService implements IHereService {
     public String findNearStations(String apiKey, String coordinates) {
         String request = HERE_STATIONS_REQUEST.replace("API_KEY", apiKey).replace("LOCATION", coordinates.strip());
         String url = URLDecoder.decode(endPointConfig.getHereUri().concat(request), StandardCharsets.UTF_8);
-
+        LOGGER.debug("baseURI: {}", url);
         HttpHeaders header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
 
