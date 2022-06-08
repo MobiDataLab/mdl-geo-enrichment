@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class HereService extends BaseService implements IHereService {
 
-    private final String HERE_ROUTE_REQUEST = "/routes?apiKey=API_KEY&origin=ORIGIN&destination=DESTINATION&return=polyline&mode=fastest;bus";
+    private final String HERE_ROUTE_REQUEST = "/routes?apiKey=API_KEY&origin=ORIGIN&destination=DESTINATION&return=polyline&modes=bus";
     private final String HERE_STATIONS_REQUEST = "/stations?apiKey=API_KEY&in=LOCATION&r=1000&return=transport&maxPlaces=50";
 
     @Override
