@@ -1,7 +1,6 @@
 package eu.akka.mobidata.mashup;
 
 import com.jayway.jsonpath.JsonPath;
-import eu.akka.mobidata.mashup.controllers.Osm2GeoJsonController;
 import net.minidev.json.JSONArray;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -20,17 +19,14 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 
 /**
- * Test Osm to GeoJson conversion & Navitia api enrichment.
+ * Test Navitia api enrichment.
  *
  * @author Mohamed.KARAMI
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("integration-test")
-public class NavitiaToulouseTest {
-
-    @Autowired
-    private Osm2GeoJsonController osm2GeoJsonController;
+public class NavitiaEnrichmentTest {
 
     @Autowired
     TestRestTemplate testRestTemplate;
@@ -57,16 +53,4 @@ public class NavitiaToulouseTest {
         // assert there is at least one point was enriched with shelter attribute
         Assertions.assertTrue(enriched_properties.stream().anyMatch(eqs -> ((LinkedHashMap) eqs).get("shelter") != null));
     }
-
-    @DisplayName("Test OSM format conversion")
-    @Test
-    public void convertOSMApiToGeoJson() {
-        String OsmApiUrl = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345600,2.2433581,48.8775000,2.4400646);out%20meta;";
-        String geoJsonResponse = osm2GeoJsonController.convertOsmApiToGeoJson(OsmApiUrl, null);
-        String type = JsonPath.read(geoJsonResponse, "$.type");
-
-        // assert the response is a feature collection
-        Assertions.assertEquals("FeatureCollection", type);
-    }
-
 }
