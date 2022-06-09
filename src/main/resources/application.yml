@@ -1,7 +1,14 @@
 server:
-  port: 8100
+  port: 443
   max-http-header-size: 10MB
   connection-timeout: 60
+  ssl:
+    enabled: true
+    keyStoreType: PKCS12
+    key-store: classpath:key-cert-mobidata.p12
+    key-store-password: '@Kk4!Mob1d4ta'
+  http:
+    port: 80
 
 spring:
   profiles:
@@ -55,9 +62,6 @@ spring:
   config:
     activate:
       on-profile: prod
-
-server:
-  port: 80
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1
