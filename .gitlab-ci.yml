@@ -72,5 +72,5 @@ deploy-job:
     - main
   after_script:
     - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
-    - docker run -d -p 80:80 wanam/mobidatalab:latest --pull=always
+    - docker run -d -p 80:80 -p 443:443 wanam/mobidatalab:latest --pull=always
     - docker logout

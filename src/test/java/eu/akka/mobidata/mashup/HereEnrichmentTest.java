@@ -29,7 +29,7 @@ public class HereEnrichmentTest {
 
     @Autowired
     TestRestTemplate testRestTemplate;
-    private final String HOST = "http://localhost:8100/";
+    private final String HOST = "http://localhost/";
 
     private final String HERE_ROUTES_REQ = "api/v1/here/getRoutes?apiKey=0PMpb1W_5iihYGu7UrBWsR8fI6Utopf52hFBKOwl7Xc&apiFormat=GeoJson&apiUrl=https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;&enrichAttributes=wheelchair, shelter, tactile_paving, bench, bin, lit&fromCoordinates=48.8345631,2.2433581&toCoordinates=48.8775033,2.4400646";
 
