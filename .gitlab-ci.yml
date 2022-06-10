@@ -20,7 +20,7 @@ variables:
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   SPRING_PROFILES_ACTIVE: integration-test
-  REPO: mobidatalab
+  REPO: mobidata-mashup
 
 build-job:
   stage: build
@@ -62,15 +62,15 @@ deploy-job:
   tags:
     - elksiba-local
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login registry.gitlab.com -u "$CI_REGISTRY_USER" --password-stdin
   script:
     - echo "Deploying application..."
-    - docker build -t wanam/$REPO:latest .
-    - docker push wanam/$REPO:latest
+    - docker build -t registry.gitlab.com/wanam/$REPO .
+    - docker push registry.gitlab.com/wanam/$REPO
     - echo "Application successfully deployed."
   only:
     - main
   after_script:
     - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
-    - docker run -d -p 80:80 -p 443:443 wanam/mobidatalab:latest --pull=always
+    - docker run -d -p 80:80 -p 443:443 registry.gitlab.com/wanam/$REPO --pull=always
     - docker logout
