@@ -9,6 +9,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.event.EventListener;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -23,6 +24,7 @@ import java.security.SecureRandom;
  * @author Mohamed.KARAMI
  */
 @SpringBootApplication
+@EnableSwagger2
 @EnableCaching
 @EnableConfigurationProperties
 public class Application {
