@@ -3,6 +3,8 @@ package eu.akka.mobidata.mashup.controllers;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import java.util.Base64;
  */
 @Controller
 @RequestMapping(value = "/api/v1/osm2geojson", produces = MediaType.APPLICATION_JSON_VALUE)
+@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class Osm2GeoJsonController {
 
     @Autowired

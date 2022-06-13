@@ -8,6 +8,8 @@ import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Controller
 @RequestMapping(value = "/api/v1/here", produces = MediaType.APPLICATION_JSON_VALUE)
+@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class HereController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HereController.class);
