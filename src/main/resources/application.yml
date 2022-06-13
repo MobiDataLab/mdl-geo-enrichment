@@ -27,7 +27,7 @@ spring:
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1
-  overpass-uri: https://www.overpass-api.de/api
+  overpass-uri: https://overpass.kumi.systems/api
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
 
@@ -48,7 +48,7 @@ spring:
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1
-  overpass-uri: https://www.overpass-api.de/api
+  overpass-uri: https://overpass.kumi.systems/api
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
 
@@ -69,7 +69,7 @@ spring:
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1
-  overpass-uri: https://www.overpass-api.de/api
+  overpass-uri: https://overpass.kumi.systems/api
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
 
