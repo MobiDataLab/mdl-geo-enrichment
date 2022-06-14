@@ -3,6 +3,8 @@ package eu.akka.mobidata.mashup.controllers;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import java.util.Base64;
  */
 @Controller
 @RequestMapping(value = "/api/v1/osm2geojson", produces = MediaType.APPLICATION_JSON_VALUE)
+@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class Osm2GeoJsonController {
 
     @Autowired
@@ -46,7 +49,7 @@ public class Osm2GeoJsonController {
      */
     @RequestMapping(value = "convertOsmApiToGeoJson", method = RequestMethod.GET)
     public @ResponseBody
-    String convertOsmApiToGeoJson(@ApiParam(value = "Target api url (Only OSM api format is supported!)", required = true, example = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String osmApiUrl,
+    String convertOsmApiToGeoJson(@ApiParam(value = "Target api url (Only OSM api format is supported!)", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String osmApiUrl,
                                   @ApiParam(value = "Source API authorization token") String sourceToken) {
         osmApiUrl = URLDecoder.decode(osmApiUrl, StandardCharsets.UTF_8);
         return osmService.getGeoJsonFromOsmBusStops(osmApiUrl, sourceToken);
