@@ -7,6 +7,11 @@ import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+/**
+ * Handles Http Server
+ *
+ * @author Mohamed.KARAMI
+ */
 @Component
 public class HttpServer {
     @Bean
