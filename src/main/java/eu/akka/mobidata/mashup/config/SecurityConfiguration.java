@@ -18,12 +18,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers(Constants.AUTH_LIST)
-                .authenticated()
-                .and()
-                .formLogin()
-                .and()
-                .httpBasic();
+        // disable basic authentication, it will be managed at the gateway level
+        http.httpBasic().disable();
     }
 }
