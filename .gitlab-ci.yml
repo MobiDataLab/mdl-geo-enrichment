@@ -25,7 +25,7 @@ variables:
 build-job:
   stage: build
   tags:
-    - elksiba-local
+    - elksiba
   script:
     - echo "Compiling the code..."
     - mvn install -B -DskipTests
@@ -34,7 +34,7 @@ build-job:
 unit-test-job: # This job runs integration tests
   stage: test
   tags:
-    - elksiba-local
+    - elksiba
   script:
     - echo "Running unit tests..."
     - mvn verify
@@ -46,7 +46,7 @@ unit-test-job: # This job runs integration tests
 package-job: # This job runs in the test stage.
   stage: package    # It only starts when the job in the build stage completes successfully.
   tags:
-    - elksiba-local
+    - elksiba
   script:
     - echo "Packaging application..."
     - mvn clean package -B -Dspring.profiles.active=prod -DskipTests
@@ -60,7 +60,7 @@ deploy-job:
   services:
     - docker:stable-dind
   tags:
-    - elksiba-local
+    - elksiba
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login registry.gitlab.com -u "$CI_REGISTRY_USER" --password-stdin
   script:
