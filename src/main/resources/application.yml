@@ -47,6 +47,14 @@ spring:
     activate:
       on-profile: integration-test
 
+# random port required for travis-ci (we are not allowed to use 80 & 443)
+server:
+  port: 60443
+  ssl:
+    enabled: false
+  http:
+    port: 60080
+
 endpoints:
   navitia-uri: https://api.navitia.io/v1
   overpass-uri: https://overpass.kumi.systems/api
@@ -67,6 +75,12 @@ spring:
   config:
     activate:
       on-profile: prod
+
+server:
+  ssl:
+    keyStoreType: PKCS12
+    key-store: classpath:key-cert-mobidata.p12
+    key-store-password: '@Kk4!Mob1d4ta'
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1

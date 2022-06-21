@@ -17,10 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author Mohamed.KARAMI
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("integration-test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class Osm2GeoJsonTest {
-
     @Autowired
     private Osm2GeoJsonController osm2GeoJsonController;
 
