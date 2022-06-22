@@ -1,4 +1,71 @@
+sudo: true
+dist: jammy #ubuntu 22.04 lts
 language: java
-script: mvn clean verify
-jdk:
-  - openjdk11
+#jdk: openjdk11 # travis comes with openjdk11.0.2 that cannot be used because of an openjdk's tls 1.3 session bug https://bugs.openjdk.org/browse/JDK-8213202
+
+services:
+  - docker
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+env:
+  global:
+    - M2_HOME: ".m2/repository"
+    - MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+    - SPRING_PROFILES_ACTIVE: integration-test
+    - REPO: mobidatalab
+
+# cache maven repo
+cache:
+  directories:
+    - target/
+    - $HOME/.m2
+    - $HOME/.npm
+
+before_install:
+  - chmod +x mvnw # required to run maven
+  - curl -s "https://get.sdkman.io" | bash # update openjdk11 to 11.0.12
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - sdk install java 11.0.12-open
+  - sdk use java 11.0.12-open
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - echo "Compiling the code..."
+        - mvn install -B -DskipTests
+        - echo "Compile complete!"
+    - stage: test
+      before_script:
+        - curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - # install nodejs
+        - sudo apt-get install nodejs
+        - node -v
+        - sudo npm install -g osmtogeojson # install osmtogeojson module
+      script:
+        - echo "Running unit tests..."
+        - mvn verify
+        - echo "Unit tests execution complete."
+    - stage: package
+      if: branch = main AND type IN (push, pull_request)
+      script:
+        - echo "Packaging application..."
+        - mvn clean package -B -Dspring.profiles.active=prod -DskipTests
+        - echo "Application packaged !"
+    - stage: deploy
+      if: branch = main AND type IN (push, pull_request)
+      before_script:
+        - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin
+      script:
+        - echo "Deploying application..."
+        - docker build -t wanam/$REPO:latest .
+        - docker push wanam/$REPO:latest
+        - echo "Application pushed to docker registry!"
+      after_script:
+        - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
+        - docker run -d -p 60080:80 -p 60443:443 wanam/$REPO --pull=always
+        - docker logout

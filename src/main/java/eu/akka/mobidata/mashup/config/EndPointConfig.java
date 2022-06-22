@@ -15,6 +15,7 @@ public class EndPointConfig {
     private String navitiaUri;
     private String overpassUri;
     private String wikidataUri;
+    private String hereUri;
 
     public String getNavitiaUri() {
         return navitiaUri;
@@ -38,5 +39,13 @@ public class EndPointConfig {
 
     public void setWikidataUri(String wikidataUri) {
         this.wikidataUri = wikidataUri;
+    }
+
+    public String getHereUri() {
+        return hereUri;
+    }
+
+    public void setHereUri(String hereUri) {
+        this.hereUri = hereUri;
     }
 }

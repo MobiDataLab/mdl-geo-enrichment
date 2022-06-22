@@ -1,0 +1,76 @@
+image: alpine:3.16.0
+
+before_script: # install required packages for build and execution
+  - apk add openjdk11 maven nodejs npm
+  - npm install -g osmtogeojson
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+# cache maven repo
+cache:
+  paths:
+    - .m2/repository
+    - target/
+
+variables:
+  M2_HOME: ".m2/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  SPRING_PROFILES_ACTIVE: integration-test
+  REPO: mobidata-mashup
+
+build-job:
+  stage: build
+  tags:
+    - elksiba-local
+  script:
+    - echo "Compiling the code..."
+    - mvn install -B -DskipTests
+    - echo "Compile complete!"
+
+unit-test-job: # This job runs integration tests
+  stage: test
+  tags:
+    - elksiba-local
+  script:
+    - echo "Running unit tests..."
+    - mvn verify
+    - echo "Unit tests execution complete."
+  artifacts:
+    paths:
+      - target/
+
+package-job: # This job runs in the test stage.
+  stage: package    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - elksiba-local
+  script:
+    - echo "Packaging application..."
+    - mvn clean package -B -Dspring.profiles.active=prod -DskipTests
+    - echo "Application packaged !"
+  only:
+    - main
+
+deploy-job:
+  stage: deploy
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  tags:
+    - elksiba-local
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login registry.gitlab.com -u "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - echo "Deploying application..."
+    - docker build -t registry.gitlab.com/wanam/$REPO .
+    - docker push registry.gitlab.com/wanam/$REPO
+    - echo "Application successfully deployed."
+  only:
+    - main
+  after_script:
+    - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
+    - docker run -d -p 80:80 -p 443:443 registry.gitlab.com/wanam/$REPO --pull=always
+    - docker logout

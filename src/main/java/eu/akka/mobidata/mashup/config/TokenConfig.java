@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Mohamed.KARAMI
  */
+@Deprecated // tokens will be passed as api parameters
 @Configuration
 @ConfigurationProperties(prefix = "tokens")
 public class TokenConfig {
