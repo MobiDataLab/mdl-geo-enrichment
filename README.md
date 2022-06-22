@@ -1,4 +1,4 @@
-# mobidata-mashup
+# mobidata-mashup [![Build Status](https://app.travis-ci.com/wanam/mobidata-mashup.svg?token=c9NQasTAc5rfBPApkkwn&branch=main)](https://app.travis-ci.com/wanam/mobidata-mashup)
 
 ## Description
 
