@@ -2,7 +2,8 @@ image: alpine:3.16.0
 
 before_script: # install required packages for build and execution
   - apk add openjdk11 maven nodejs npm
-  - npm install -g osmtogeojson
+  - npm install -g osmtogeojson # install osmtogeojson module
+  - npm install -g gtfs-to-geojson # install gtfs-to-geojson module
 
 stages:
   - build

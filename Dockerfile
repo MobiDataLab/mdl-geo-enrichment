@@ -6,7 +6,8 @@ COPY target/*.jar /usr/app/app.jar
 
 # install openjdk11-jre & npm & osmtogeojson module
 RUN apk --update add --no-cache openjdk11-jre nodejs npm \
-    && npm install -g osmtogeojson
+    && npm install -g osmtogeojson \
+    && npm install -g gtfs-to-geojson
 
 # expose required ports
 EXPOSE 80 443
