@@ -1,7 +1,7 @@
 package eu.akka.mobidata.mashup;
 
 import com.jayway.jsonpath.JsonPath;
-import eu.akka.mobidata.mashup.controllers.Osm2GeoJsonController;
+import eu.akka.mobidata.mashup.controllers.OsmController;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,13 +21,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class Osm2GeoJsonTest {
     @Autowired
-    private Osm2GeoJsonController osm2GeoJsonController;
+    private OsmController osmController;
 
     @DisplayName("Test OSM format conversion")
     @Test
     public void convertOSMApiToGeoJson() {
         String OsmApiUrl = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;";
-        String geoJsonResponse = osm2GeoJsonController.convertOsmApiToGeoJson(OsmApiUrl, null);
+        String geoJsonResponse = osmController.convertOsmApiToGeoJson(OsmApiUrl, null);
         String type = JsonPath.read(geoJsonResponse, "$.type");
 
         // assert the response is a feature collection
