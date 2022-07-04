@@ -75,8 +75,11 @@ public class NavitiaController {
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
             return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
+        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
+            throw new RuntimeException("Not yet implemented!");
+        } else {
+            throw new RuntimeException("Unsupported Data Format!");
         }
-        return null;
     }
 
     /**
@@ -115,8 +118,11 @@ public class NavitiaController {
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(lines, osmBusStops);
             return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
+        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
+            throw new RuntimeException("Not yet implemented!");
+        } else {
+            throw new RuntimeException("Unsupported Data Format!");
         }
-        return null;
     }
 
 }

@@ -17,7 +17,7 @@ env:
     - M2_HOME: ".m2/repository"
     - MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
     - SPRING_PROFILES_ACTIVE: integration-test
-    - REPO: mobidatalab
+    - REPO: mdl-geo-enrichment
 
 # cache maven repo
 cache:
