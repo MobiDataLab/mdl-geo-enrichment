@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/api/v1/json", produces = MediaType.APPLICATION_JSON_VALUE)
 @ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class GenericJsonController {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericJsonController.class);
 
     @RequestMapping(value = "enrichJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -32,10 +31,9 @@ public class GenericJsonController {
                          @ApiParam(value = "Url of the source API to be used for enrichment", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String sourceApiUrl,
                          @ApiParam(value = "Target API authorization token") String targetToken,
                          @ApiParam(value = "Source API authorization token") String sourceToken,
-                         @ApiParam(value = "The path of the target point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.coordinates") String targetNamePath,
-                         @ApiParam(value = "The path of the source point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.coords") String sourceNamePath) {
+                         @ApiParam(value = "The path of the target point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.coordinates") String targetCoordsPath,
+                         @ApiParam(value = "The path of the source point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.coords") String sourceCoordsPath) {
 
         throw new RuntimeException("Not yet implemented!");
     }
-
 }

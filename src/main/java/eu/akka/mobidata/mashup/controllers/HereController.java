@@ -76,14 +76,17 @@ public class HereController {
             GeoJsonManager geoJsonManager = new GeoJsonManager(routes, osmBusStops);
             return geoJsonManager.aggregateHereBusStops(enrichAttributes);
 
+        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
+            throw new RuntimeException("Not yet implemented!");
+        } else {
+            throw new RuntimeException("Unsupported Data Format!");
         }
-        return null;
     }
 
     @RequestMapping(value = "getNearStations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String getNearStations(@ApiParam(value = "Here API authorization key", example = "0PMpb1W_5iihYGu7UrBWsR8fI6Utopf52hFBKOwl7Xc") String apiKey,
-                           @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.876892,2.352623") String coordinates,
+                           @ApiParam(value = "Coordinates of the location: latitude, longitude", required = true, example = "48.876892,2.352623") String coordinates,
                            @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                            @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true) APIFormatEnum apiFormat,
                            @ApiParam(value = "API full url", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway](48.856892, 2.332623,48.896892, 2.372623);node[railway](48.856892, 2.332623,48.896892, 2.372623);out%20meta;") String apiUrl,
@@ -112,7 +115,10 @@ public class HereController {
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(stations, geoJsonBusStops);
             return geoJsonManager.aggregateHereBusStops(enrichAttributes);
+        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
+            throw new RuntimeException("Not yet implemented!");
+        } else {
+            throw new RuntimeException("Unsupported Data Format!");
         }
-        return null;
     }
 }

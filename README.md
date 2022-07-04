@@ -1,14 +1,19 @@
-# mobidata-mashup [![Build Status](https://app.travis-ci.com/wanam/mobidata-mashup.svg?token=c9NQasTAc5rfBPApkkwn&branch=main)](https://app.travis-ci.com/wanam/mobidata-mashup)
+# mdl-geo-enrichment [![Build Status](https://app.travis-ci.com/wanam/mdl-geo-enrichment.svg?token=c9NQasTAc5rfBPApkkwn&branch=main)](https://app.travis-ci.com/wanam/mdl-geo-enrichment)
 
 ## Description
 
 Mashup REST API for mobility data.
 
-Aggregates information from the following 3 sources into a new REST API:
+This is a geographical enrichment demonstrator that Aggregates and enrich information from the following 3 sources:
 
 * Navitia (https://api.navitia.io)
 * OpenStreetMap (https://api.openstreetmap.org and https://overpass-api.de)
 * Here (https://here.com)
+
+Geographical demonstrator supports 3 standard data format for enrichment:
+* OSM: Open Street Map
+* GTFS: General Transit Feed Specification
+* GeoJson: Representation of geographical features based on Json
 
 An example of API enrichment is illustrated in the bellow sequence diagram:
 
@@ -18,6 +23,7 @@ An example of API enrichment is illustrated in the bellow sequence diagram:
 * Install OpenJDK 11
 * Install Node.js
 * Install OsmToGeoJson module
+* Install GtfsToGeoJson module
 ```
 $ npm install -g osmtogeojson
 ```
@@ -36,7 +42,7 @@ $ java -jar target/mobidata-mashup-0.0.1-SNAPSHOT.jar
 ## Run as docker image
 A docker image is built automatically upon main branch and pushed to docker hub with the deployed application and all prerequisites installed: openjdk11-jre & nodejs & osmtogeojson module
 ```
-docker run -d -p 80:80 -p 443:443 wanam/mobidatalab:latest --pull=always
+docker run -d -p 80:80 -p 443:443 wanam/mdl-geo-enrichment:latest --pull=always
 ```
 
 ## Browse Swagger UI

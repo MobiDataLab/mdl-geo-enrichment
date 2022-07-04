@@ -21,7 +21,7 @@ variables:
   M2_HOME: ".m2/repository"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   SPRING_PROFILES_ACTIVE: integration-test
-  REPO: mobidata-mashup
+  REPO: mdl-geo-enrichment
 
 build-job:
   stage: build
