@@ -27,14 +27,14 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(
                         new ApiInfoBuilder()
-                                .title("Mobidata-mashup")
-                                .description("Mobility data enrichment api!")
+                                .title("mdl-geo-enrichment")
+                                .description("MobiDatLab geographical enrichment API")
                                 .version("1.0.0")
                                 .contact(
                                         new Contact(
-                                                null,
-                                                null,
-                                                "mohamed.karami@akka.eu"
+                                                "MobiDataLab",
+                                                "https://mobidatalab.eu",
+                                                null
                                         )
                                 ).build());
     }
