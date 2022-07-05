@@ -25,14 +25,16 @@ public class GenericJsonController {
     @RequestMapping(value = "enrichJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String enrichJsonApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
-                         @ApiParam(value = "Target attributes parent's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.equipments") String targetAttributesParentPath,
-                         @ApiParam(value = "Source attributes parent's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.tags") String sourceAttributesParentPath,
+                         @ApiParam(value = "Target attributes parent's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.equipments") String targetAttributesParentPath,
+                         @ApiParam(value = "Source attributes parent's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.tags") String sourceAttributesParentPath,
                          @ApiParam(value = "Url of the target API to be enriched", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String targetApiUrl,
                          @ApiParam(value = "Url of the source API to be used for enrichment", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String sourceApiUrl,
                          @ApiParam(value = "Target API authorization token") String targetToken,
                          @ApiParam(value = "Source API authorization token") String sourceToken,
-                         @ApiParam(value = "The path of the target point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.coordinates") String targetCoordsPath,
-                         @ApiParam(value = "The path of the source point coordinate's path (using Jsonpath expressions: https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.coords") String sourceCoordsPath) {
+                         @ApiParam(value = "The path of the target point coordinate's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.coordinates") String targetCoordsPath,
+                         @ApiParam(value = "The path of the source point coordinate's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.coords") String sourceCoordsPath,
+                         @ApiParam(value = "The path of the target point name's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point.name") String targetNamePath,
+                         @ApiParam(value = "The path of the source point name's path using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..elements.name") String sourceNamePath) {
 
         throw new RuntimeException("Not yet implemented!");
     }
