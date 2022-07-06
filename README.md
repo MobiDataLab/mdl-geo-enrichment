@@ -26,6 +26,7 @@ An example of API enrichment is illustrated in the bellow sequence diagram:
 * Install GtfsToGeoJson module
 ```
 $ npm install -g osmtogeojson
+$ npm install -g gtfs-to-geojson
 ```
 
 ## Build and Run
@@ -36,7 +37,7 @@ $ mvn spring-boot:run
 
 The application is also packaged as a standalone jar which can be run as follows:
 ```
-$ java -jar target/mobidata-mashup-0.0.1-SNAPSHOT.jar
+$ java -jar target/mdl-geo-enrichment-0.0.1-SNAPSHOT.jar
 ```
 
 ## Run as docker image

@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.akka.mobidata</groupId>
-    <artifactId>mobidata-mashup</artifactId>
+    <artifactId>mdl-geo-enrichment</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>mobidata-mashup</name>
-    <description>RESTful mobility data mashup service</description>
+    <name>mdl-geo-enrichment</name>
+    <description>RESTful MobiDataLab geographical enrichment service</description>
 
     <developers>
         <developer>
