@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class NavitiaService extends BaseService implements INavitiaService {
 
-    private static final String API_LINES = "/coverage/sandbox/lines?from=from-coord&to=to-coord";
+    private static final String API_LINES = "/coverage/fr-idf/lines?from=from-coord&to=to-coord";
     private static final String API_JOURNEYS = "/journeys?from=from-coord&to=to-coord&allowed_id[]=physical_mode:Bus";
 
     /**
