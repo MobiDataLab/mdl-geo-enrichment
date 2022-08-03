@@ -26,10 +26,10 @@ public class OsmService extends BaseService implements IOsmService {
      * @return the bus stops if found, or null if not found
      */
     @Cacheable("bus-stops-geojson")
-    public String getGeoJsonFromOsmBusStops(String url, String sourceToken) {
+    public String getGeoJsonFromOsmBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = getGeoJsonBusStops(url, sourceToken);
+            String navResponse = getGeoJsonBusStops(url, token);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
@@ -47,12 +47,12 @@ public class OsmService extends BaseService implements IOsmService {
      * @return the bus stops if found, or null if not found
      */
     @Cacheable("bus-stops-json")
-    public String getGeoJsonBusStops(String url, String sourceToken) {
+    public String getGeoJsonBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
             HttpHeaders header = new HttpHeaders();
             header.setContentType(MediaType.APPLICATION_JSON);
-            header.set("authorization", sourceToken);
+            header.set("authorization", token);
 
             HttpEntity<String> entity = new HttpEntity<>(header);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);

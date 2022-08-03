@@ -1,4 +1,4 @@
-# mdl-geo-enrichment [![Build Status](https://app.travis-ci.com/wanam/mdl-geo-enrichment.svg?token=c9NQasTAc5rfBPApkkwn&branch=main)](https://app.travis-ci.com/wanam/mdl-geo-enrichment)
+# mdl-geo-enrichment [![Build Status](https://github.com/wanam/mdl-geo-enrichment/actions/workflows/github-actions.yml/badge.svg)](https://github.com/wanam/mdl-geo-enrichment/actions/workflows/github-actions.yml)
 
 ## Description
 
