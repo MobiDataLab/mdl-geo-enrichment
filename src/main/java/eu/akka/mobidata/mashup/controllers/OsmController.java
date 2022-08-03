@@ -1,11 +1,15 @@
 package eu.akka.mobidata.mashup.controllers;
 
+import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
+import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +47,37 @@ public class OsmController {
                         @ApiParam(value = "Target API authorization token") String targetToken,
                         @ApiParam(value = "Source API authorization token") String sourceToken) {
 
-        throw new RuntimeException("Not yet implemented!");
+        targetApiUrl = URLDecoder.decode(targetApiUrl, StandardCharsets.UTF_8);
+        sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
+
+        // Get bus stops from open street map api
+        String routes = osmService.getGeoJsonBusStops(targetToken, targetApiUrl);
+
+        if (routes == null) {
+            throw new MobilityDataNotFoundException("No Bus stops found!");
+        }
+
+        if (APIFormatEnum.OSM.equals(apiFormat)) {
+            // get bus stops for the same coordinates from osm
+            String busStops = osmService.getGeoJsonBusStops(sourceApiUrl, sourceToken);
+            JSONArray osmElements = JsonPath.read(busStops, "$.elements");
+
+            // aggregate and enrich here's bus stops from osm response
+            OsmManager osmManager = new OsmManager(routes);
+            return osmManager.aggregateBusStops(osmElements, enrichAttributes);
+        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
+            // get bus stops for the same coordinates from osm
+            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(sourceApiUrl, sourceToken);
+
+            // load features from geo json response
+            GeoJsonManager geoJsonManager = new GeoJsonManager(routes, osmBusStops);
+            return geoJsonManager.aggregateHereBusStops(enrichAttributes);
+
+        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
+            throw new RuntimeException("Not yet implemented!");
+        } else {
+            throw new RuntimeException("Unsupported Data Format!");
+        }
     }
 
     /**
@@ -67,8 +101,8 @@ public class OsmController {
     @RequestMapping(value = "convertOsmApiToGeoJson", method = RequestMethod.GET)
     public @ResponseBody
     String convertOsmApiToGeoJson(@ApiParam(value = "Target api url (Only OSM api format is supported!)", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String osmApiUrl,
-                                  @ApiParam(value = "Source API authorization token") String sourceToken) {
+                                  @ApiParam(value = "API authorization token") String token) {
         osmApiUrl = URLDecoder.decode(osmApiUrl, StandardCharsets.UTF_8);
-        return osmService.getGeoJsonFromOsmBusStops(osmApiUrl, sourceToken);
+        return osmService.getGeoJsonFromOsmBusStops(osmApiUrl, token);
     }
 }

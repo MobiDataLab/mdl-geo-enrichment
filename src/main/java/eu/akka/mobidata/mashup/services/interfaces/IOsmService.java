@@ -11,17 +11,17 @@ public interface IOsmService {
      * Finds and returns bus stops in geojson format.
      *
      * @param url         url
-     * @param sourceToken source api Token
+     * @param token source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getGeoJsonFromOsmBusStops(String url, String sourceToken);
+    String getGeoJsonFromOsmBusStops(String url, String token);
 
     /**
      * Finds and returns bus stops in json format.
      *
      * @param url         url
-     * @param sourceToken source api Token
+     * @param token source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getGeoJsonBusStops(String url, String sourceToken);
+    String getGeoJsonBusStops(String url, String token);
 }
