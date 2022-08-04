@@ -6,13 +6,13 @@ env:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" , "enrich_osm" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: processor1-akka
+    runs-on: elksiba-aws
 
     steps:
       - uses: actions/checkout@v3
