@@ -26,7 +26,7 @@ public class Osm2GeoJsonTest {
     @DisplayName("Test OSM format conversion")
     @Test
     public void convertOSMApiToGeoJson() {
-        String OsmApiUrl = "https://www.overpass-api.de/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;";
+        String OsmApiUrl = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;";
         String geoJsonResponse = osmController.convertOsmApiToGeoJson(OsmApiUrl, null);
         String type = JsonPath.read(geoJsonResponse, "$.type");
 
