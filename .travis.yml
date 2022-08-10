@@ -1,7 +1,7 @@
 sudo: true
 dist: jammy #ubuntu 22.04 lts
 language: java
-#jdk: openjdk11 # travis comes with openjdk11.0.2 that cannot be used because of an openjdk's tls 1.3 session bug https://bugs.openjdk.org/browse/JDK-8213202
+jdk: openjdk17
 
 services:
   - docker
@@ -28,10 +28,6 @@ cache:
 
 before_install:
   - chmod +x mvnw # required to run maven
-  - curl -s "https://get.sdkman.io" | bash # update openjdk11 to 11.0.12
-  - source "$HOME/.sdkman/bin/sdkman-init.sh"
-  - sdk install java 11.0.12-open
-  - sdk use java 11.0.12-open
 
 jobs:
   include:

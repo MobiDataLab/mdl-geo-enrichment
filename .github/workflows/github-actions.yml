@@ -1,4 +1,4 @@
-name: Build and upload MDL docker image
+name: Build and deploy MDL image
 
 env:
   SPRING_PROFILES_ACTIVE: integration-test
@@ -6,7 +6,7 @@ env:
 
 on:
   push:
-    branches: [ "main" , "enrich_osm" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -16,15 +16,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: s4u/setup-maven-action@v1.4.0
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: maven
+          java-version: 17
+          maven-version: 3.8.5
       - uses: actions/setup-node@v3
         with:
           node-version: '16.x'
-
+      - name: Maven
+        run: mvn -version
       # build source code
       - name: Build
         run: mvn install -B -DskipTests

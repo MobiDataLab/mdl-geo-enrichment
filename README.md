@@ -20,7 +20,7 @@ An example of API enrichment is illustrated in the bellow sequence diagram:
 ![Sequence Diagram](https://www.plantuml.com/plantuml/png/TP51ImD138Nl-oj2B-f1l7kGYXPH44fRVq1s9zQHRbAJBDX_RuPTKTlnbc5UtlTucPkZ-j3lcXSZXSiRc3rBc-_H4MwNZpEuXWLhxjuWT5joU991cGvdLhwR8t5PtuowrMAz-NPuYBVAu6Hm1U-ZWJKdoYfz5NkPjw2q5pQg4TVXsD5lOW7k9RCRdBCaiWl8_2hQesTXQ0_Goi0fV6FuR4uTQacM_nhMGXrltuagxT1f2XO5TY8Q6R3qWfo0iPyc6YjN-XZ8d1AWk-QsD5XZbTFzN8hIXFWJSKwSuinV)
 
 ## Prerequisites
-* Install OpenJDK 11
+* Install OpenJDK 17
 * Install Node.js
 * Install OsmToGeoJson module
 * Install GtfsToGeoJson module
