@@ -62,7 +62,7 @@ public class HereController {
 
         if (APIFormatEnum.OSM.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String busStops = osmService.getGeoJsonBusStops(apiUrl, sourceToken);
+            String busStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
             JSONArray osmElements = JsonPath.read(busStops, "$.elements");
 
             // aggregate and enrich here's bus stops from osm response
@@ -110,7 +110,7 @@ public class HereController {
             return geoJsonManager.aggregateHereBusStops(enrichAttributes);
         } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String geoJsonBusStops = osmService.getGeoJsonBusStops(apiUrl, sourceToken);
+            String geoJsonBusStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
 
             // load features from geo json response
             GeoJsonManager geoJsonManager = new GeoJsonManager(stations, geoJsonBusStops);
