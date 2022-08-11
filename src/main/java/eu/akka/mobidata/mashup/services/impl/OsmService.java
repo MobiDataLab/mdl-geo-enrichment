@@ -29,7 +29,7 @@ public class OsmService extends BaseService implements IOsmService {
     public String getGeoJsonFromOsmBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = getGeoJsonBusStops(url, token);
+            String navResponse = getJsonFromOsmBusStops(url, token);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
@@ -47,7 +47,7 @@ public class OsmService extends BaseService implements IOsmService {
      * @return the bus stops if found, or null if not found
      */
     @Cacheable("bus-stops-json")
-    public String getGeoJsonBusStops(String url, String token) {
+    public String getJsonFromOsmBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
             HttpHeaders header = new HttpHeaders();

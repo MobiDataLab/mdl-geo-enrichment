@@ -1,27 +1,27 @@
 package eu.akka.mobidata.mashup.services.interfaces;
 
 /**
- * Service communicating with the OpenStreetMap API
+ * Service handling communication with GTFS API
  *
  * @author Mohamed.KARAMI
  */
-public interface IOsmService {
+public interface IGtfsService {
 
     /**
      * Finds and returns bus stops in geojson format.
      *
-     * @param url         url
+     * @param url   url
      * @param token source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getGeoJsonFromOsmBusStops(String url, String token);
+    String getGeoJsonFromGtfsBusStops(String url, String token);
 
     /**
-     * Finds and returns bus stops in json format.
+     * Finds and returns bus stops in gtfs format.
      *
-     * @param url         url
+     * @param url   url
      * @param token source api Token
      * @return the bus stops if found, or null if not found
      */
-    String getJsonFromOsmBusStops(String url, String token);
+    byte[] getGtfsBusStops(String url, String token);
 }
