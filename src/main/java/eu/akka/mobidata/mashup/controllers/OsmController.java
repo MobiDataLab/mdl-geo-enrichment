@@ -51,7 +51,7 @@ public class OsmController {
         sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
 
         // Get bus stops from open street map api
-        String routes = osmService.getGeoJsonBusStops(targetToken, targetApiUrl);
+        String routes = osmService.getJsonFromOsmBusStops(targetToken, targetApiUrl);
 
         if (routes == null) {
             throw new MobilityDataNotFoundException("No Bus stops found!");
@@ -59,7 +59,7 @@ public class OsmController {
 
         if (APIFormatEnum.OSM.equals(apiFormat)) {
             // get bus stops for the same coordinates from osm
-            String busStops = osmService.getGeoJsonBusStops(sourceApiUrl, sourceToken);
+            String busStops = osmService.getJsonFromOsmBusStops(sourceApiUrl, sourceToken);
             JSONArray osmElements = JsonPath.read(busStops, "$.elements");
 
             // aggregate and enrich here's bus stops from osm response

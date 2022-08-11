@@ -1,16 +1,21 @@
 package eu.akka.mobidata.mashup.controllers;
 
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.services.interfaces.IGtfsService;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handles the enrichment of a GTFS mobility data API.
@@ -23,6 +28,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class GtfsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GtfsController.class);
+
+    @Autowired
+    IGtfsService gtfsService;
 
     @RequestMapping(value = "enrichGtfsApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
@@ -56,9 +64,11 @@ public class GtfsController {
      */
     @RequestMapping(value = "convertGtfsApiToGeoJson", method = RequestMethod.GET)
     public @ResponseBody
-    String convertGtfsApiToGeoJson(@ApiParam(value = "Target api url (Only GTFS api format is supported!)", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String gtfsApiUrl,
-                                   @ApiParam(value = "Source API authorization token") String sourceToken) {
-        throw new RuntimeException("Not yet implemented!");
+    String convertGtfsApiToGeoJson(@ApiParam(value = "URL of GTFS zip file", required = true, example = "https://transitfeeds.com/p/tisseo/595/latest/download") String gtfsApiUrl,
+                                   @ApiParam(value = "Authorization token") String targetToken) {
+
+        gtfsApiUrl = URLDecoder.decode(gtfsApiUrl, StandardCharsets.UTF_8);
+        return gtfsService.getGeoJsonFromGtfsBusStops(gtfsApiUrl, targetToken);
     }
 
 }

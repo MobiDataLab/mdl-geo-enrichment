@@ -3,6 +3,7 @@ package eu.akka.mobidata.mashup.util;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -21,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -48,11 +50,15 @@ public class GeoJsonManager {
     public static String convertOsmToGeoJson(String osmResponse) {
         String osmGeoJson = null;
 
+        if (osmResponse == null) {
+            throw new RuntimeException("OSM response is empty!");
+        }
+
         try {
             //convert osm to geojson
             Runtime runtime = Runtime.getRuntime();
 
-            // write osm response to temporary file
+            // write osm response to a temporary file
             Path tempFile = Files.createTempFile(null, null);
             Files.write(tempFile, osmResponse.getBytes(StandardCharsets.UTF_8));
 
@@ -71,12 +77,67 @@ public class GeoJsonManager {
             process = runtime.exec(command);
             osmGeoJson = IOUtils.toString(process.getInputStream(), Charset.defaultCharset());
 
-            Files.delete(tempFile);
+            Files.deleteIfExists(tempFile);
         } catch (IOException e) {
             LOGGER.error("Please make sure nodejs and osmtogeojson module are installed!");
             LOGGER.error(e.getMessage());
         }
         return osmGeoJson;
+    }
+
+    public static String convertGtfsToGeoJson(byte[] gtfsResponse) {
+        String gtfsGeoJson = null;
+        String myAgencyKey = "MyAgency_" + UUID.randomUUID();
+
+        if (gtfsResponse == null) {
+            throw new RuntimeException("GTFS response is empty!");
+        }
+
+        try {
+            // write gtfs response to a temporary file
+            Path tempGTFSFile = Files.createTempFile(null, ".zip");
+            Files.write(tempGTFSFile, gtfsResponse);
+
+            // write gtfs config
+            String myAgencyConfig = Constants.GTFS_CONFIG_JSON.replace("my_agency_key", myAgencyKey);
+            myAgencyConfig = myAgencyConfig.replace("gtfs_path", tempGTFSFile.getFileName().toString());
+            Path tempGTFSConfigFile = Files.createTempFile(null, ".json");
+            Files.write(tempGTFSConfigFile, myAgencyConfig.getBytes(StandardCharsets.UTF_8));
+
+            Runtime runtime = Runtime.getRuntime();
+            Process process;
+
+            // command to convert gtfs to geojson
+            String[] command = {Constants.GTFS_TO_GEOJSON, "--configPath", tempGTFSConfigFile.toString()};
+
+            if (Utils.isWindows()) {
+                // get npm path
+                process = runtime.exec(Constants.NPM_GET_WIN_PATH);
+                String npmPath = IOUtils.toString(process.getInputStream(), Charset.defaultCharset()).replace("\n", "");
+
+                command = new String[]{npmPath + File.separator + Constants.GTFS_TO_GEOJSON, "--configPath", tempGTFSConfigFile.toString()};
+            }
+
+            // we use ProcessBuilder to set a custom working directory
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(tempGTFSConfigFile.getParent().toFile());
+            processBuilder.command(command);
+            process = processBuilder.start();
+            LOGGER.debug(IOUtils.toString(process.getInputStream(), Charset.defaultCharset()));
+
+            // get generated geojson file
+            Path geojsonFile = Paths.get(tempGTFSConfigFile.getParent().toString(), "geojson", myAgencyKey, myAgencyKey + ".geojson");
+            gtfsGeoJson = Files.readString(geojsonFile, Charset.defaultCharset());
+
+            // delete temporary files
+            Files.deleteIfExists(tempGTFSFile);
+            Files.deleteIfExists(tempGTFSConfigFile);
+            FileUtils.deleteDirectory(geojsonFile.getParent().toFile());
+        } catch (IOException e) {
+            LOGGER.error("Please make sure nodejs and gtfs-to-geojson module are installed!");
+            LOGGER.error(e.getMessage());
+        }
+        return gtfsGeoJson;
     }
 
     private void loadGeoJsonFeatures(String busStops) throws IOException {
@@ -111,7 +172,7 @@ public class GeoJsonManager {
 
     public String aggregateNavitiaBusStops(String attributes) {
         List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
-        if(stopPoints.isEmpty()){
+        if (stopPoints.isEmpty()) {
             stopPoints = this.targetApiContext.read("$..stop_area");
         }
         // for the current navitia stop point we will look for the closest bugs tops on osm line
@@ -120,7 +181,7 @@ public class GeoJsonManager {
             // create empty enriched properties array
             stopPointNavitia.put("enriched_properties", new LinkedHashMap());
 
-            LinkedHashMap coords = (stopPointNavitia.get("address") == null? (LinkedHashMap) stopPointNavitia.get("coord"): (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord"));
+            LinkedHashMap coords = (stopPointNavitia.get("address") == null ? (LinkedHashMap) stopPointNavitia.get("coord") : (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord"));
             Coordinate coordinate = new Coordinate(
                     Double.parseDouble(coords.get("lon").toString()),
                     Double.parseDouble(coords.get("lat").toString()));
