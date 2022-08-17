@@ -1,16 +1,10 @@
 package eu.akka.mobidata.mashup.controllers;
 
-import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.interfaces.IHereService;
-import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
-import eu.akka.mobidata.mashup.util.GeoJsonManager;
-import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +23,13 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/here", produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
-public class HereController {
+@RequestMapping(value = "/api/v1/here")
+public class HereController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HereController.class);
 
     @Autowired
     private IHereService hereService;
-
-    @Autowired
-    private IOsmService osmService;
 
     @RequestMapping(value = "getRoutes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
@@ -60,27 +50,7 @@ public class HereController {
             throw new MobilityDataNotFoundException("No Here routes found!");
         }
 
-        if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
-            JSONArray osmElements = JsonPath.read(busStops, "$.elements");
-
-            // aggregate and enrich here's bus stops from osm response
-            OsmManager osmManager = new OsmManager(routes);
-            return osmManager.aggregateBusStops(osmElements, enrichAttributes);
-        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(routes, osmBusStops);
-            return geoJsonManager.aggregateHereBusStops(enrichAttributes);
-
-        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
-            throw new RuntimeException("Not yet implemented!");
-        } else {
-            throw new RuntimeException("Unsupported Data Format!");
-        }
+        return getEnrichedData(TargetAPIFormatEnum.Here, apiFormat, apiUrl, sourceToken, routes, enrichAttributes);
     }
 
     @RequestMapping(value = "getNearStations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -101,24 +71,6 @@ public class HereController {
             throw new MobilityDataNotFoundException("No Here stations found!");
         }
 
-        if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(stations, osmBusStops);
-            return geoJsonManager.aggregateHereBusStops(enrichAttributes);
-        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String geoJsonBusStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(stations, geoJsonBusStops);
-            return geoJsonManager.aggregateHereBusStops(enrichAttributes);
-        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
-            throw new RuntimeException("Not yet implemented!");
-        } else {
-            throw new RuntimeException("Unsupported Data Format!");
-        }
+        return getEnrichedData(TargetAPIFormatEnum.Here, apiFormat, apiUrl, sourceToken, stations, enrichAttributes);
     }
 }

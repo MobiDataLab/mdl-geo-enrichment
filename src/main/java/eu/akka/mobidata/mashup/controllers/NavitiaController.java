@@ -1,16 +1,10 @@
 package eu.akka.mobidata.mashup.controllers;
 
-import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
 import eu.akka.mobidata.mashup.services.interfaces.INavitiaService;
-import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
-import eu.akka.mobidata.mashup.util.GeoJsonManager;
-import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +23,13 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/navitia", produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
-public class NavitiaController {
+@RequestMapping(value = "/api/v1/navitia")
+public class NavitiaController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaController.class);
 
     @Autowired
     private INavitiaService navitiaService;
-
-    @Autowired
-    private IOsmService osmService;
 
     @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
@@ -60,26 +50,7 @@ public class NavitiaController {
             throw new MobilityDataNotFoundException("No Navitia journeys found!");
         }
 
-        if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
-            JSONArray osmElements = JsonPath.read(busStops, "$.elements");
-
-            // aggregate and enrich navitia's bus stops from osm response
-            OsmManager osmManager = new OsmManager(journeys);
-            return osmManager.aggregateBusStops(osmElements, enrichAttributes);
-        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(journeys, osmBusStops);
-            return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
-        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
-            throw new RuntimeException("Not yet implemented!");
-        } else {
-            throw new RuntimeException("Unsupported Data Format!");
-        }
+        return getEnrichedData(TargetAPIFormatEnum.Navitia, apiFormat, apiUrl, sourceToken, journeys, enrichAttributes);
     }
 
     /**
@@ -102,27 +73,7 @@ public class NavitiaController {
             throw new MobilityDataNotFoundException("No Navitia lines found!");
         }
 
-        apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
-        if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonFromOsmBusStops(apiUrl, sourceToken);
-            JSONArray osmElements = JsonPath.read(busStops, "$.elements");
-
-            // aggregate and enrich navitia's bus stops from osm response
-            OsmManager osmManager = new OsmManager(lines);
-            return osmManager.aggregateBusStops(osmElements, enrichAttributes);
-        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(lines, osmBusStops);
-            return geoJsonManager.aggregateNavitiaBusStops(enrichAttributes);
-        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
-            throw new RuntimeException("Not yet implemented!");
-        } else {
-            throw new RuntimeException("Unsupported Data Format!");
-        }
+        return getEnrichedData(TargetAPIFormatEnum.Navitia, apiFormat, apiUrl, sourceToken, lines, enrichAttributes);
     }
 
 }
