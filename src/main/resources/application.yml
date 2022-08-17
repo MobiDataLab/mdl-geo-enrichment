@@ -1,7 +1,6 @@
 server:
   port: 443
-  max-http-header-size: 10MB
-  connection-timeout: 60
+  connection-timeout: 300
   ssl:
     enabled: true
     keyStoreType: PKCS12
@@ -18,6 +17,10 @@ spring:
     user:
       name: user
       password: password
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 ---
 

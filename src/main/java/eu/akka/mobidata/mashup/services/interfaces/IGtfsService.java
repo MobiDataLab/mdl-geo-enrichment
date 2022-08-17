@@ -17,6 +17,14 @@ public interface IGtfsService {
     String getGeoJsonFromGtfsBusStops(String url, String token);
 
     /**
+     * Finds and returns bus stops in geojson format.
+     *
+     * @param gtfsContent gtfs Content
+     * @return the bus stops if found, or null if not found
+     */
+    String getGeoJsonFromGtfsFile(byte[] gtfsContent);
+
+    /**
      * Finds and returns bus stops in gtfs format.
      *
      * @param url   url

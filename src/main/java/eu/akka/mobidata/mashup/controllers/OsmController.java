@@ -17,11 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * Handles the enrichment of a OSM mobility data API.
@@ -32,8 +34,6 @@ import java.util.Base64;
 @RequestMapping(value = "/api/v1/osm", produces = MediaType.APPLICATION_JSON_VALUE)
 @ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class OsmController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OsmController.class);
 
     @Autowired
     IOsmService osmService;
@@ -81,15 +81,20 @@ public class OsmController {
     }
 
     /**
-     * Convert data to geoJson
-     *
-     * @param osmData osm input Data
-     * @return geoJson output
+     * @param osmFile
+     * @return geojson content
      */
-    @RequestMapping(value = "convertOsmDataToGeoJson", method = RequestMethod.GET)
+    @RequestMapping(
+            value = "convertOsmFileToGeoJson",
+            method = RequestMethod.POST,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public @ResponseBody
-    String convertDataToGeoJson(@ApiParam(value = "Base 64 encoded OSM data content", required = true) String osmData) {
-        return GeoJsonManager.convertOsmToGeoJson(new String(Base64.getDecoder().decode(osmData)));
+    String convertOsmFileToGeoJson(@RequestPart(value = "OSM file") MultipartFile osmFile) {
+        try {
+            return GeoJsonManager.convertOsmToGeoJson(osmFile.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
