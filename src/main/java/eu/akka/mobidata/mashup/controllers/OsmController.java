@@ -1,18 +1,10 @@
 package eu.akka.mobidata.mashup.controllers;
 
-import com.jayway.jsonpath.JsonPath;
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
-import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
-import eu.akka.mobidata.mashup.util.OsmManager;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import net.minidev.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +23,8 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/osm", produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
-public class OsmController {
-
-    @Autowired
-    IOsmService osmService;
+@RequestMapping(value = "/api/v1/osm")
+public class OsmController extends BaseController {
 
     @RequestMapping(value = "enrichOsmApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
@@ -57,27 +45,7 @@ public class OsmController {
             throw new MobilityDataNotFoundException("No Bus stops found!");
         }
 
-        if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String busStops = osmService.getJsonFromOsmBusStops(sourceApiUrl, sourceToken);
-            JSONArray osmElements = JsonPath.read(busStops, "$.elements");
-
-            // aggregate and enrich here's bus stops from osm response
-            OsmManager osmManager = new OsmManager(routes);
-            return osmManager.aggregateBusStops(osmElements, enrichAttributes);
-        } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            String osmBusStops = osmService.getGeoJsonFromOsmBusStops(sourceApiUrl, sourceToken);
-
-            // load features from geo json response
-            GeoJsonManager geoJsonManager = new GeoJsonManager(routes, osmBusStops);
-            return geoJsonManager.aggregateHereBusStops(enrichAttributes);
-
-        } else if (APIFormatEnum.GTFS.equals(apiFormat)) {
-            throw new RuntimeException("Not yet implemented!");
-        } else {
-            throw new RuntimeException("Unsupported Data Format!");
-        }
+        return getEnrichedData(TargetAPIFormatEnum.OSM, apiFormat, sourceApiUrl, sourceToken, routes, enrichAttributes);
     }
 
     /**

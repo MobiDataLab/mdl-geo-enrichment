@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: elksiba-aws
+    runs-on: processor1-akka
 
     steps:
       - uses: actions/checkout@v3
@@ -53,6 +53,10 @@ jobs:
       - name: Push the image to docker registy
         run: docker push wanam/${{ env.REPO }}:latest
       - name: Stop the container of the old image if running
-        run: docker stop $(docker ps -q --filter expose=80) || true
+        run: docker stop $(docker ps -a -q) || true
+      - name: Force remove the container if it is still running
+        run: docker rm -f $(docker ps -a -q) || true
+      - name: Remove old images
+        run: docker rmi $(docker images -q) || true # remove old images
       - name: Run new docker image
         run: docker run -d -p 60080:80 -p 60443:443 wanam/${{ env.REPO }} --pull=always

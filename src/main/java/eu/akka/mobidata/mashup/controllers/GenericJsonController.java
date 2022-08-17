@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/json", produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
-public class GenericJsonController {
+@RequestMapping(value = "/api/v1/json")
+public class GenericJsonController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericJsonController.class);
 
     @RequestMapping(value = "enrichJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

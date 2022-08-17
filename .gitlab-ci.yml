@@ -72,6 +72,8 @@ deploy-job:
   only:
     - main
   after_script:
-    - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
+    - docker stop $(docker ps -a -q) || true # stop the container of the old image if running
+    - docker rm -f $(docker ps -a -q) || true # force remove the container if it is still running
+    - docker rmi $(docker images -q) || true # remove old images
     - docker run -d -p 80:80 -p 443:443 registry.gitlab.com/wanam/$REPO --pull=always
     - docker logout
