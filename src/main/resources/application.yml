@@ -51,11 +51,11 @@ spring:
 
 # random port required for travis-ci (we are not allowed to use 80 & 443)
 server:
-  port: 60443
+  port: 61443
   ssl:
     enabled: false
   http:
-    port: 60080
+    port: 61080
 
 endpoints:
   navitia-uri: https://api.navitia.io/v1
