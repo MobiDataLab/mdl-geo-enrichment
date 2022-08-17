@@ -26,12 +26,8 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/gtfs", produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
-public class GtfsController {
-
-    @Autowired
-    IGtfsService gtfsService;
+@RequestMapping(value = "/api/v1/gtfs")
+public class GtfsController extends BaseController {
 
     @RequestMapping(value = "enrichGtfsApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody

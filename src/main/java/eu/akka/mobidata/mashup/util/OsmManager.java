@@ -28,13 +28,15 @@ public class OsmManager {
         this.targetApiContext = JsonPath.parse(targetApiResponse);
     }
 
+    //@TODO to be removed as we are able to convert osm to geojson, we will maintain only geojson enrichment algorithms.
+    @Deprecated(forRemoval = true)
     public String aggregateBusStops(JSONArray busStops, String attributes) {
         List<LinkedHashMap> elements = busStops.stream()
                 .map(element -> (LinkedHashMap) element)
                 .collect(Collectors.toList());
 
         List<LinkedHashMap> stopPoints = this.targetApiContext.read("$..stop_point");
-        if(stopPoints.isEmpty()){
+        if (stopPoints.isEmpty()) {
             stopPoints = this.targetApiContext.read("$..stop_area");
         }
         // for the current navitia stop point we will look for the closest bugs tops on osm line
@@ -43,7 +45,7 @@ public class OsmManager {
             // create empty enriched properties array
             stopPointNavitia.put("enriched_properties", new LinkedHashMap());
 
-            LinkedHashMap coords = (stopPointNavitia.get("address") == null? (LinkedHashMap) stopPointNavitia.get("coord"): (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord"));
+            LinkedHashMap coords = (stopPointNavitia.get("address") == null ? (LinkedHashMap) stopPointNavitia.get("coord") : (LinkedHashMap) ((LinkedHashMap) stopPointNavitia.get("address")).get("coord"));
             Coordinate coordinate = new Coordinate(
                     Double.parseDouble(coords.get("lon").toString()),
                     Double.parseDouble(coords.get("lat").toString()));

@@ -23,9 +23,9 @@ public class Gtfs2GeoJsonTest {
     @Autowired
     private GtfsController gtfsController;
 
-    @DisplayName("Test OSM format conversion")
+    @DisplayName("Test GTFS format conversion")
     @Test
-    public void convertOSMApiToGeoJson() {
+    public void convertGTFSApiToGeoJson() {
         String gtfsZipUrl = "https://transitfeeds.com/p/tisseo/595/latest/download";
         String geoJsonResponse = gtfsController.convertGtfsApiToGeoJson(gtfsZipUrl, null);
         String type = JsonPath.read(geoJsonResponse, "$.type");
