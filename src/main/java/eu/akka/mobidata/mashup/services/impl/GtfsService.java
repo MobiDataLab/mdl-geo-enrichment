@@ -2,7 +2,6 @@ package eu.akka.mobidata.mashup.services.impl;
 
 import eu.akka.mobidata.mashup.services.interfaces.IGtfsService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,7 +22,7 @@ public class GtfsService extends BaseService implements IGtfsService {
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops-gtfs-geojson")
+    @Override
     public String getGeoJsonFromGtfsBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
@@ -37,11 +36,27 @@ public class GtfsService extends BaseService implements IGtfsService {
     }
 
     /**
+     * get GeoJson From Gtfs File
+     *
+     * @param gtfsContent gtfs Content
+     * @return geoJson content
+     */
+    @Override
+    public String getGeoJsonFromGtfsFile(byte[] gtfsContent) {
+        try {
+            return GeoJsonManager.convertGtfsToGeoJson(gtfsContent);
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Finds and returns bus stops in gtfs format.
      *
      * @return the bus stops if found, or null if not found
      */
-    @Cacheable("bus-stops-gtfs")
+    @Override
     public byte[] getGtfsBusStops(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
