@@ -12,8 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -26,8 +29,6 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping(value = "/api/v1/gtfs", produces = MediaType.APPLICATION_JSON_VALUE)
 @ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
 public class GtfsController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GtfsController.class);
 
     @Autowired
     IGtfsService gtfsService;
@@ -45,15 +46,22 @@ public class GtfsController {
     }
 
     /**
-     * Convert data to geoJson
+     * Convert gtfs data to geoJson
      *
-     * @param gtfsData gtfs input Data
+     * @param gtfsFile gtfs zip file
      * @return geoJson output
      */
-    @RequestMapping(value = "convertGtfsDataToGeoJson", method = RequestMethod.GET)
+    @RequestMapping(
+            value = "convertGtfsFileToGeoJson",
+            method = RequestMethod.POST,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public @ResponseBody
-    String convertGtfsDataToGeoJson(@ApiParam(value = "Base 64 encoded GTFS data content", required = true) String gtfsData) {
-        throw new RuntimeException("Not yet implemented!");
+    String convertGtfsFileToGeoJson(@RequestPart(value = "GTFS file") MultipartFile gtfsFile) {
+        try {
+            return gtfsService.getGeoJsonFromGtfsFile(gtfsFile.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -47,10 +47,10 @@ public class GeoJsonManager {
     }
 
 
-    public static String convertOsmToGeoJson(String osmResponse) {
+    public static String convertOsmToGeoJson(byte[] osmFile) {
         String osmGeoJson = null;
 
-        if (osmResponse == null) {
+        if (osmFile == null) {
             throw new RuntimeException("OSM response is empty!");
         }
 
@@ -60,7 +60,7 @@ public class GeoJsonManager {
 
             // write osm response to a temporary file
             Path tempFile = Files.createTempFile(null, null);
-            Files.write(tempFile, osmResponse.getBytes(StandardCharsets.UTF_8));
+            Files.write(tempFile, osmFile);
 
             // get npm path
             Process process;
@@ -147,7 +147,7 @@ public class GeoJsonManager {
 
         if (featureType.getAttributeCount() < 1) {
             // try to convert to geojson
-            busStops = convertOsmToGeoJson(busStops);
+            busStops = convertOsmToGeoJson(busStops.getBytes(StandardCharsets.UTF_8));
             featureType = featureJSON.readFeatureCollectionSchema(busStops, false);
 
             if (featureType.getAttributeCount() < 1) {

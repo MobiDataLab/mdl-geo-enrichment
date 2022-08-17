@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -34,7 +35,7 @@ public class OsmService extends BaseService implements IOsmService {
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
 
-            return GeoJsonManager.convertOsmToGeoJson(navResponse);
+            return GeoJsonManager.convertOsmToGeoJson(navResponse.getBytes(StandardCharsets.UTF_8));
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage());
         }
