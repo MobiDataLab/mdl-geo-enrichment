@@ -39,7 +39,7 @@ public class OsmController extends BaseController {
         sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
 
         // Get bus stops from open street map api
-        String routes = osmService.getJsonFromOsmBusStops(targetToken, targetApiUrl);
+        String routes = osmService.getJsonFromOsmBusStops(targetApiUrl, targetToken);
 
         if (routes == null) {
             throw new MobilityDataNotFoundException("No Bus stops found!");
