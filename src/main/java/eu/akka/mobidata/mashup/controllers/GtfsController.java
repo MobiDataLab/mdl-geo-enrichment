@@ -1,6 +1,9 @@
 package eu.akka.mobidata.mashup.controllers;
 
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
+import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
+import eu.akka.mobidata.mashup.services.impl.GtfsService;
 import eu.akka.mobidata.mashup.services.interfaces.IGtfsService;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,6 +32,9 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping(value = "/api/v1/gtfs")
 public class GtfsController extends BaseController {
 
+    @Autowired
+    GtfsService gtfsService;
+
     @RequestMapping(value = "enrichGtfsApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String enrichGtfsApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
@@ -38,7 +44,17 @@ public class GtfsController extends BaseController {
                          @ApiParam(value = "Target API authorization token") String targetToken,
                          @ApiParam(value = "Source API authorization token") String sourceToken) {
 
-        throw new RuntimeException("Not yet implemented!");
+        targetApiUrl = URLDecoder.decode(targetApiUrl, StandardCharsets.UTF_8);
+        sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
+
+        // Get bus stops from open street map api
+        String geoJsonStops = gtfsService.getGeoJsonFromGtfsBusStops(targetApiUrl, targetToken);
+
+        if (geoJsonStops == null) {
+            throw new MobilityDataNotFoundException("No Bus stops found!");
+        }
+
+        return getEnrichedData(TargetAPIFormatEnum.GeoJson, apiFormat, sourceApiUrl, sourceToken, geoJsonStops, enrichAttributes);
     }
 
     /**

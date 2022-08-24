@@ -1,16 +1,21 @@
 package eu.akka.mobidata.mashup.controllers;
 
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
+import eu.akka.mobidata.mashup.exceptions.MobilityDataNotFoundException;
+import eu.akka.mobidata.mashup.services.impl.GeoJsonService;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handles the enrichment of a Geojson mobility data API.
@@ -23,6 +28,9 @@ public class GeoJsonController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonController.class);
 
+    @Autowired
+    GeoJsonService geoJsonService;
+
     @RequestMapping(value = "enrichGeoJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
     String enrichGeoJsonApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
@@ -32,7 +40,17 @@ public class GeoJsonController extends BaseController {
                             @ApiParam(value = "Target API authorization token") String targetToken,
                             @ApiParam(value = "Source API authorization token") String sourceToken) {
 
-        throw new RuntimeException("Not yet implemented!");
+        targetApiUrl = URLDecoder.decode(targetApiUrl, StandardCharsets.UTF_8);
+        sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
+
+        // Get bus stops from open street map api
+        String stops = osmService.getGeoJsonFromOsmBusStops(targetApiUrl, targetToken);
+
+        if (stops == null) {
+            throw new MobilityDataNotFoundException("No Bus stops found!");
+        }
+
+        return getEnrichedData(TargetAPIFormatEnum.GeoJson, apiFormat, sourceApiUrl, sourceToken, stops, enrichAttributes);
     }
 
 }

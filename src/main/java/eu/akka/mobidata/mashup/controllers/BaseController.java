@@ -54,7 +54,12 @@ public class BaseController {
             case Here -> {
                 return geoJsonManager.aggregateHereBusStops(enrichAttributes);
             }
-            case OSM -> throw new RuntimeException("Not yet implemented!");
+            case OSM -> {
+                return geoJsonManager.aggregateOsmBusStops(enrichAttributes);
+            }
+            case GeoJson -> {
+                return geoJsonManager.aggregateGeoJsonBusStops(enrichAttributes);
+            }
             default -> throw new RuntimeException("Unsupported Data Format!");
         }
 

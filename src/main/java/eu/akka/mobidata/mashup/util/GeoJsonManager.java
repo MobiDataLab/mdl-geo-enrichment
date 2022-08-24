@@ -2,7 +2,9 @@ package eu.akka.mobidata.mashup.util;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
 import eu.akka.mobidata.mashup.exceptions.BadRequestException;
+import net.minidev.json.JSONArray;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.geotools.feature.FeatureCollection;
@@ -186,9 +188,9 @@ public class GeoJsonManager {
                     Double.parseDouble(coords.get("lon").toString()),
                     Double.parseDouble(coords.get("lat").toString()));
 
-            Geometry geoNav = GeometryTools.geometryFactory.createPoint(coordinate);
+            Geometry geometry = GeometryTools.geometryFactory.createPoint(coordinate);
 
-            enrichNavitiaWithProperties(attributes, stopPointNavitia, geoNav);
+            enrichNavitiaWithProperties(attributes, stopPointNavitia, geometry);
         });
 
         return targetApiContext.jsonString();
@@ -196,30 +198,10 @@ public class GeoJsonManager {
 
     public void enrichNavitiaWithProperties(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNavitia) {
         // get the closest feature/point to Navitia's bus stop and enrich it
-        Object stopId = stopPointNavitia.get("id");
-        if (stopId != null) {
-            simpleFeatureList.parallelStream()
-                    .filter(feature ->
-                            feature.getProperty("name").getValue() != null
-                                    && geoNavitia.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
-                                    && (stopPointNavitia.get("name").equals(feature.getProperty("name").getValue())
-                                    || geoNavitia.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
-                    )
-                    // get latest version/changeset only
-                    .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
-                    .ifPresent(feature -> {
-                        // remove white spaces from the attributes list then enrich the additional properties
-                        Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
-                            Property property = feature.getProperty(attribute);
-                            // add new attribute to navitia's bus stop equipments
-                            if (property != null && property.getValue() != null) {
-                                setAttribute(stopPointNavitia, property);
-                            }
-                        });
-                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia.get("name"));
-                    });
-        }
+        Object placeName = stopPointNavitia.get("id");
+        enrichPoint(placeName, geoNavitia, attributes, stopPointNavitia, stopPointNavitia.get("name"), TargetAPIFormatEnum.Navitia);
     }
+
 
     public String aggregateHereBusStops(String attributes) {
         List<LinkedHashMap> places = this.targetApiContext.read("$..place");
@@ -235,9 +217,9 @@ public class GeoJsonManager {
                     Double.parseDouble(location.get("lng").toString()),
                     Double.parseDouble(location.get("lat").toString()));
 
-            Geometry geoHere = GeometryTools.geometryFactory.createPoint(coordinate);
+            Geometry geometry = GeometryTools.geometryFactory.createPoint(coordinate);
 
-            enrichHereWithProperties(attributes, place, geoHere);
+            enrichHereWithProperties(attributes, place, geometry);
         });
 
         return targetApiContext.jsonString();
@@ -246,13 +228,70 @@ public class GeoJsonManager {
     public void enrichHereWithProperties(String attributes, LinkedHashMap place, Geometry geoHere) {
         // get the closest feature/point to Navitia's bus stop and enrich it
         Object placeName = place.get("name");
+        enrichPoint(placeName, geoHere, attributes, place, placeName, TargetAPIFormatEnum.Here);
+    }
+
+    public String aggregateOsmBusStops(String attributes) {
+        JSONArray elements = this.targetApiContext.read("$..elements");
+
+        ((List<LinkedHashMap>) elements.get(0)).parallelStream().forEach(element ->
+        {
+            // create empty enriched properties array
+            element.put("enriched_properties", new LinkedHashMap());
+
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(element.get("lon").toString()),
+                    Double.parseDouble(element.get("lat").toString()));
+
+            Geometry geometry = GeometryTools.geometryFactory.createPoint(coordinate);
+
+            enrichOsmWithProperties(attributes, element, geometry);
+        });
+
+        return targetApiContext.jsonString();
+    }
+
+    public void enrichOsmWithProperties(String attributes, LinkedHashMap element, Geometry geoHere) {
+        LinkedHashMap tags = (LinkedHashMap) element.get("tags");
+        Object placeName = tags.get("name");
+        enrichPoint(placeName, geoHere, attributes, element, placeName, TargetAPIFormatEnum.OSM);
+    }
+
+    public String aggregateGeoJsonBusStops(String attributes) {
+        List<LinkedHashMap> features = this.targetApiContext.read("$..features");
+
+        ((List<LinkedHashMap>) features.get(0)).parallelStream().forEach(feature ->
+        {
+            // create empty enriched properties array
+            ((LinkedHashMap) feature.get("properties")).put("enriched_properties", new LinkedHashMap());
+
+            JSONArray coordinates = (JSONArray) ((LinkedHashMap) feature.get("geometry")).get("coordinates");
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(coordinates.get(0).toString()),
+                    Double.parseDouble(coordinates.get(1).toString()));
+
+            Geometry geometry = GeometryTools.geometryFactory.createPoint(coordinate);
+
+            enrichGeoJsonWithProperties(attributes, feature, geometry);
+        });
+
+        return targetApiContext.jsonString();
+    }
+
+    public void enrichGeoJsonWithProperties(String attributes, LinkedHashMap stopPoint, Geometry geoHere) {
+        // get the closest feature/point to Navitia's bus stop and enrich it
+        Object placeName = ((LinkedHashMap) stopPoint.get("properties")).get("name");
+        enrichPoint(placeName, geoHere, attributes, stopPoint, placeName, TargetAPIFormatEnum.GeoJson);
+    }
+
+    private void enrichPoint(Object placeName, Geometry geoNavitia, String attributes, LinkedHashMap stopPointNavitia, Object stopPointNavitia1, TargetAPIFormatEnum apiFormatEnum) {
         if (placeName != null) {
             simpleFeatureList.parallelStream()
                     .filter(feature ->
                             feature.getProperty("name").getValue() != null
-                                    && geoHere.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
-                                    && (place.get("name").equals(feature.getProperty("name").getValue())
-                                    || geoHere.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
+                                    && geoNavitia.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
+                                    && (placeName.equals(feature.getProperty("name").getValue())
+                                    || geoNavitia.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
                     )
                     // get latest version/changeset only
                     .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
@@ -262,16 +301,23 @@ public class GeoJsonManager {
                             Property property = feature.getProperty(attribute);
                             // add new attribute to navitia's bus stop equipments
                             if (property != null && property.getValue() != null) {
-                                setAttribute(place, property);
+                                setAttribute(stopPointNavitia, property, apiFormatEnum);
                             }
                         });
-                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + placeName);
+                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia1);
                     });
         }
     }
 
-    private void setAttribute(LinkedHashMap stopPointNavitia, Property property) {
-        LinkedHashMap enriched_properties = (LinkedHashMap) stopPointNavitia.get("enriched_properties");
+    private void setAttribute(LinkedHashMap stopPoint, Property property, TargetAPIFormatEnum apiFormatEnum) {
+        LinkedHashMap enriched_properties;
+        switch (apiFormatEnum) {
+            case GeoJson ->
+                    enriched_properties = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("properties")).get("enriched_properties");
+            case OSM ->
+                    enriched_properties = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("tags")).get("enriched_properties");
+            default -> enriched_properties = (LinkedHashMap) stopPoint.get("enriched_properties");
+        }
         enriched_properties.put(property.getName(), property.getValue());
     }
 }
