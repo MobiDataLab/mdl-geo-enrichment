@@ -39,15 +39,14 @@ public class GeoJsonManager {
 
     public GeoJsonManager(String targetApiResponse, String geoJsonString) {
         try {
-            // load navitia's response to the parser
+            // load target's api response to the parser
             this.targetApiContext = JsonPath.parse(targetApiResponse);
-            // parse and load osm's response
+            // parse and load source's api response
             loadGeoJsonFeatures(geoJsonString);
         } catch (IOException e) {
             throw new BadRequestException("Malformed GeoJson response!");
         }
     }
-
 
     public static String convertOsmToGeoJson(byte[] osmFile) {
         String osmGeoJson = null;
@@ -206,7 +205,7 @@ public class GeoJsonManager {
     public String aggregateHereBusStops(String attributes) {
         List<LinkedHashMap> places = this.targetApiContext.read("$..place");
 
-        // for the current navitia stop point we will look for the closest bugs tops on osm line
+        // for the current here's stop point we will look for the closest points on the source api response
         places.parallelStream().forEach(place ->
         {
             // create empty enriched properties array
@@ -226,7 +225,7 @@ public class GeoJsonManager {
     }
 
     public void enrichHereWithProperties(String attributes, LinkedHashMap place, Geometry geoHere) {
-        // get the closest feature/point to Navitia's bus stop and enrich it
+        // get the closest feature/point to Here's bus stop and enrich it
         Object placeName = place.get("name");
         enrichPoint(placeName, geoHere, attributes, place, placeName, TargetAPIFormatEnum.Here);
     }
@@ -234,6 +233,7 @@ public class GeoJsonManager {
     public String aggregateOsmBusStops(String attributes) {
         JSONArray elements = this.targetApiContext.read("$..elements");
 
+        // for the current Osm's stop point we will look for the closest points on the source api response
         ((List<LinkedHashMap>) elements.get(0)).parallelStream().forEach(element ->
         {
             // create empty enriched properties array
@@ -260,6 +260,7 @@ public class GeoJsonManager {
     public String aggregateGeoJsonBusStops(String attributes) {
         List<LinkedHashMap> features = this.targetApiContext.read("$..features");
 
+        // for the current geojson's stop point we will look for the closest points on the source api response
         ((List<LinkedHashMap>) features.get(0)).parallelStream().forEach(feature ->
         {
             // create empty enriched properties array
@@ -279,39 +280,60 @@ public class GeoJsonManager {
     }
 
     public void enrichGeoJsonWithProperties(String attributes, LinkedHashMap stopPoint, Geometry geoHere) {
-        // get the closest feature/point to Navitia's bus stop and enrich it
+        // get the closest feature/point to the stop point of the target api and enrich it
         Object placeName = ((LinkedHashMap) stopPoint.get("properties")).get("name");
         enrichPoint(placeName, geoHere, attributes, stopPoint, placeName, TargetAPIFormatEnum.GeoJson);
     }
 
-    private void enrichPoint(Object placeName, Geometry geoNavitia, String attributes, LinkedHashMap stopPointNavitia, Object stopPointNavitia1, TargetAPIFormatEnum apiFormatEnum) {
+    private void enrichPoint(Object placeName, Geometry geometry, String attributes, LinkedHashMap stopPoint, Object stopPointName, TargetAPIFormatEnum apiFormatEnum) {
         if (placeName != null) {
             simpleFeatureList.parallelStream()
                     .filter(feature ->
-                            feature.getProperty("name").getValue() != null
-                                    && geoNavitia.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
-                                    && (placeName.equals(feature.getProperty("name").getValue())
-                                    || geoNavitia.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
+                            getFeatureName(feature) != null
+                                    && geometry.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
+                                    && (placeName.equals(getFeatureName(feature))
+                                    || geometry.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
                     )
                     // get latest version/changeset only
-                    .max(Comparator.comparing(feature -> (Long) feature.getProperty("changeset").getValue()))
+                    .max(Comparator.comparing(feature -> getChangeSet(feature)))
                     .ifPresent(feature -> {
                         // remove white spaces from the attributes list then enrich the additional properties
                         Arrays.stream(attributes.replaceAll("\\s", "").split(",")).forEach(attribute -> {
                             Property property = feature.getProperty(attribute);
-                            // add new attribute to navitia's bus stop equipments
+                            // add new attribute to the stop point
                             if (property != null && property.getValue() != null) {
-                                setAttribute(stopPointNavitia, property, apiFormatEnum);
+                                setAttribute(stopPoint, property, apiFormatEnum);
                             }
                         });
-                        LOGGER.debug("Bus stop : " + feature.getProperty("name").getValue() + " v" + feature.getProperty("version").getValue() + " is close to: " + stopPointNavitia1);
+                        LOGGER.debug("Bus stop : " + getFeatureName(feature) + " v" + getVersion(feature) + " is close to: " + stopPointName);
                     });
         }
     }
 
-    private void setAttribute(LinkedHashMap stopPoint, Property property, TargetAPIFormatEnum apiFormatEnum) {
+    private static long getChangeSet(SimpleFeature feature) {
+        return feature.getProperty("changeset") != null ? (Long) feature.getProperty("changeset").getValue() : 0L;
+    }
+
+    private static long getVersion(SimpleFeature feature) {
+        return feature.getProperty("version") != null ? (long) feature.getProperty("version").getValue() : 0L;
+    }
+
+    private static Object getFeatureName(SimpleFeature feature) {
+        Property name = feature.getProperty("name");
+        // converted gtfs has different feature name key "stop-name"
+        return (name != null ? name.getValue() : feature.getProperty("stop_name").getValue());
+    }
+
+    /**
+     * add enriched attributes to the stop point
+     *
+     * @param stopPoint
+     * @param property
+     * @param targetAPIFormatEnum
+     */
+    private void setAttribute(LinkedHashMap stopPoint, Property property, TargetAPIFormatEnum targetAPIFormatEnum) {
         LinkedHashMap enriched_properties;
-        switch (apiFormatEnum) {
+        switch (targetAPIFormatEnum) {
             case GeoJson ->
                     enriched_properties = (LinkedHashMap) ((LinkedHashMap) stopPoint.get("properties")).get("enriched_properties");
             case OSM ->
