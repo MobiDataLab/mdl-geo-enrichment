@@ -35,9 +35,6 @@ endpoints:
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
 
-tokens:
-  navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
-
 #proxy:
 #  proxy-host: and-fgt-ha.akka.eu
 #  proxy-port: 9090
@@ -63,9 +60,6 @@ endpoints:
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
 
-tokens:
-  navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
-
 #proxy:
 #  proxy-host: and-fgt-ha.akka.eu
 #  proxy-port: 9090
@@ -88,9 +82,6 @@ endpoints:
   overpass-uri: https://overpass.kumi.systems/api
   wikidata-uri: https://en.wikipedia.org
   here-uri: https://transit.router.hereapi.com/v8
-
-tokens:
-  navitia-user-token: 55af740c-e0e9-4f2b-9387-3bb81a8c7bd4
 
 #proxy:
 #  proxy-host: and-fgt-ha.akka.eu
