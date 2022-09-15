@@ -59,4 +59,4 @@ jobs:
       - name: Remove old images
         run: docker rmi $(docker images -q) || true # remove old images
       - name: Run new docker image
-        run: docker run -d -p 60080:80 -p 60443:443 wanam/${{ env.REPO }} --pull=always
+        run: docker run -d -p 62080:80 -p 62443:443 wanam/${{ env.REPO }} --pull=always
