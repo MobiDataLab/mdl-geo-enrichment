@@ -64,5 +64,5 @@ jobs:
         - echo "Application pushed to docker registry!"
       after_script:
         - docker stop $(docker ps -q --filter expose=80) || true # stop the container of the old image if running
-        - docker run -d -p 60080:80 -p 60443:443 wanam/$REPO --pull=always
+        - docker run -d -p 62080:80 -p 62443:443 wanam/$REPO --pull=always
         - docker logout

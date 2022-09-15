@@ -2,15 +2,21 @@ package eu.akka.mobidata.mashup.controllers;
 
 import eu.akka.mobidata.mashup.enumeration.APIFormatEnum;
 import eu.akka.mobidata.mashup.enumeration.TargetAPIFormatEnum;
+import eu.akka.mobidata.mashup.model.GenericJsonCriteria;
+import eu.akka.mobidata.mashup.services.interfaces.IGenericJsonService;
 import eu.akka.mobidata.mashup.services.interfaces.IGeoJsonService;
 import eu.akka.mobidata.mashup.services.interfaces.IGtfsService;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
+import eu.akka.mobidata.mashup.util.JsonParser;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handles the base controller of mobility data REST API.
@@ -29,6 +35,9 @@ public class BaseController {
 
     @Autowired
     protected IGtfsService gtfsService;
+
+    @Autowired
+    protected IGenericJsonService genericJsonService;
 
     protected String getEnrichedData(TargetAPIFormatEnum targetApiFormat, APIFormatEnum apiFormat, String apiUrl, String sourceToken, String data, String enrichAttributes) {
         String busStops;
@@ -63,5 +72,15 @@ public class BaseController {
             default -> throw new RuntimeException("Unsupported Data Format!");
         }
 
+    }
+
+    protected String getEnrichedData(String apiUrl, String sourceToken, String data, String attributes, GenericJsonCriteria targetCriteria, GenericJsonCriteria sourceCriteria) {
+        String busStops;
+        apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
+        busStops = genericJsonService.getJsonStops(apiUrl, sourceToken);
+
+        // load json response to the parser
+        JsonParser jsonParser = new JsonParser(data, busStops);
+        return jsonParser.aggregateJsonStops(attributes, targetCriteria, sourceCriteria);
     }
 }
