@@ -29,6 +29,7 @@ public class Constants {
                                         "routes",
                                         "shapes",
                                         "stop_times",
+                                        "translations",
                                         "trips"
                                     ]
                                 }
