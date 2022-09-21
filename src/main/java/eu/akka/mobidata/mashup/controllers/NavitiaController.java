@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/navitia")
+@RequestMapping(value = "/api/v1/navitia", produces = MediaType.APPLICATION_JSON_VALUE)
 public class NavitiaController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NavitiaController.class);
@@ -31,7 +31,7 @@ public class NavitiaController extends BaseController {
     @Autowired
     private INavitiaService navitiaService;
 
-    @RequestMapping(value = "getJourneys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "getJourneys", method = RequestMethod.GET)
     public @ResponseBody
     String getJourneys(@ApiParam(value = "Navitia API authorization token", example = "55af740c-e0e9-4f2b-9387-3bb81a8c7bd4") String targetToken,
                        @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,

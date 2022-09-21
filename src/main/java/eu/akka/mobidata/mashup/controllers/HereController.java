@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/here")
+@RequestMapping(value = "/api/v1/here", produces = MediaType.APPLICATION_JSON_VALUE)
 public class HereController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HereController.class);
@@ -31,7 +31,7 @@ public class HereController extends BaseController {
     @Autowired
     private IHereService hereService;
 
-    @RequestMapping(value = "getRoutes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "getRoutes", method = RequestMethod.GET)
     public @ResponseBody
     String getRoutes(@ApiParam(value = "Here API authorization key", example = "0PMpb1W_5iihYGu7UrBWsR8fI6Utopf52hFBKOwl7Xc") String apiKey,
                      @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
@@ -53,7 +53,7 @@ public class HereController extends BaseController {
         return getEnrichedData(TargetAPIFormatEnum.Here, apiFormat, apiUrl, sourceToken, routes, enrichAttributes);
     }
 
-    @RequestMapping(value = "getNearStations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "getNearStations", method = RequestMethod.GET)
     public @ResponseBody
     String getNearStations(@ApiParam(value = "Here API authorization key", example = "0PMpb1W_5iihYGu7UrBWsR8fI6Utopf52hFBKOwl7Xc") String apiKey,
                            @ApiParam(value = "Coordinates of the location: latitude, longitude", required = true, example = "48.876892,2.352623") String coordinates,

@@ -20,11 +20,11 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/json")
+@RequestMapping(value = "/api/v1/json", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GenericJsonController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericJsonController.class);
 
-    @RequestMapping(value = "enrichJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "enrichJsonApi", method = RequestMethod.GET)
     public @ResponseBody
     String enrichJsonApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichmentAttributes,
                          @ApiParam(value = "Target attributes root path of the point using [Jsonpath expressions](https://goessner.net/articles/JsonPath/index.html#e2)", required = true, example = "$..stop_point") String targetAttributesRootPath,

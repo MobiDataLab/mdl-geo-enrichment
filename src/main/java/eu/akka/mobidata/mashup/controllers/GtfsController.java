@@ -29,13 +29,13 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/gtfs")
+@RequestMapping(value = "/api/v1/gtfs", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GtfsController extends BaseController {
 
     @Autowired
     GtfsService gtfsService;
 
-    @RequestMapping(value = "enrichGtfsApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "enrichGtfsApi", method = RequestMethod.GET)
     public @ResponseBody
     String enrichGtfsApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                          @ApiParam(value = "Url of the target API to be enriched", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String targetApiUrl,

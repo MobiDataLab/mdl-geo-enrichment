@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @Controller
-@RequestMapping(value = "/api/v1/geojson")
+@RequestMapping(value = "/api/v1/geojson", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GeoJsonController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonController.class);
@@ -31,7 +31,7 @@ public class GeoJsonController extends BaseController {
     @Autowired
     GeoJsonService geoJsonService;
 
-    @RequestMapping(value = "enrichGeoJsonApi", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "enrichGeoJsonApi", method = RequestMethod.GET)
     public @ResponseBody
     String enrichGeoJsonApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                             @ApiParam(value = "Url of the target API to be enriched", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String targetApiUrl,
@@ -44,7 +44,7 @@ public class GeoJsonController extends BaseController {
         sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
 
         // Get bus stops from open street map api
-        String stops = osmService.getGeoJsonFromOsmBusStops(targetApiUrl, targetToken);
+        String stops = geoJsonService.getGeoJsonBusStops(targetApiUrl, targetToken);
 
         if (stops == null) {
             throw new MobilityDataNotFoundException("No Bus stops found!");
