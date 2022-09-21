@@ -147,7 +147,7 @@ public class GeoJsonManager {
         SimpleFeatureType featureType = featureJSON.readFeatureCollectionSchema(busStops, false);
 
         if (featureType.getAttributeCount() < 1) {
-            // try to convert to geojson
+            // assuming it is an osm format try to convert to geojson
             busStops = convertOsmToGeoJson(busStops.getBytes(StandardCharsets.UTF_8));
             featureType = featureJSON.readFeatureCollectionSchema(busStops, false);
 
@@ -237,7 +237,7 @@ public class GeoJsonManager {
         ((List<LinkedHashMap>) elements.get(0)).parallelStream().forEach(element ->
         {
             // create empty enriched properties array
-            element.put("enriched_properties", new LinkedHashMap());
+            ((LinkedHashMap) element.get("tags")).put("enriched_properties", new LinkedHashMap());
 
             Coordinate coordinate = new Coordinate(
                     Double.parseDouble(element.get("lon").toString()),
