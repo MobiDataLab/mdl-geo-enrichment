@@ -197,8 +197,8 @@ public class GeoJsonManager {
 
     public void enrichNavitiaWithProperties(String attributes, LinkedHashMap stopPointNavitia, Geometry geoNavitia) {
         // get the closest feature/point to Navitia's bus stop and enrich it
-        Object placeName = stopPointNavitia.get("id");
-        enrichPoint(placeName, geoNavitia, attributes, stopPointNavitia, stopPointNavitia.get("name"), TargetAPIFormatEnum.Navitia);
+        Object placeId = stopPointNavitia.get("id");
+        enrichPoint(placeId, geoNavitia, attributes, stopPointNavitia, stopPointNavitia.get("name"), TargetAPIFormatEnum.Navitia);
     }
 
 
@@ -285,13 +285,13 @@ public class GeoJsonManager {
         enrichPoint(placeName, geoHere, attributes, stopPoint, placeName, TargetAPIFormatEnum.GeoJson);
     }
 
-    private void enrichPoint(Object placeName, Geometry geometry, String attributes, LinkedHashMap stopPoint, Object stopPointName, TargetAPIFormatEnum apiFormatEnum) {
-        if (placeName != null) {
+    private void enrichPoint(Object placeId, Geometry geometry, String attributes, LinkedHashMap stopPoint, Object stopPointName, TargetAPIFormatEnum apiFormatEnum) {
+        if (placeId != null) {
             simpleFeatureList.parallelStream()
                     .filter(feature ->
                             getFeatureName(feature) != null
                                     && geometry.getGeometryType().equalsIgnoreCase(((Geometry) feature.getDefaultGeometry()).getGeometryType())
-                                    && (placeName.equals(getFeatureName(feature))
+                                    && (stopPointName.equals(getFeatureName(feature))
                                     || geometry.isWithinDistance(((Geometry) feature.getDefaultGeometry()), 0.001D))
                     )
                     // get latest version/changeset only

@@ -61,12 +61,14 @@ public class NavitiaController extends BaseController {
     @RequestMapping(value = "getLines", method = RequestMethod.GET)
     public @ResponseBody
     String getLines(@ApiParam(value = "Navitia API authorization token", example = "55af740c-e0e9-4f2b-9387-3bb81a8c7bd4") String targetToken,
-                    @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "48.8345631,2.2433581") String fromCoordinates,
-                    @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "48.8775033,2.4400646") String toCoordinates,
+                    @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "41.822902,12.4057903") String fromCoordinates,
+                    @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "41.939445,12.5472503") String toCoordinates,
                     @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                     @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true) APIFormatEnum apiFormat,
-                    @ApiParam(value = "API full url", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String apiUrl,
+                    @ApiParam(value = "API full url", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](41.822902,12.4057903,41.939445,12.5472503);out%20meta;") String apiUrl,
                     @ApiParam(value = "Source API authorization token") String sourceToken) {
+        apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
+
         // Get lines from Navitia
         String lines = navitiaService.findLines(targetToken, fromCoordinates, toCoordinates);
         if (lines == null) {
