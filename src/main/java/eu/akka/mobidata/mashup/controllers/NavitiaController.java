@@ -37,7 +37,7 @@ public class NavitiaController extends BaseController {
                        @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "41.822902,12.4057903") String fromCoordinates,
                        @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "41.939445,12.5472503") String toCoordinates,
                        @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
-                       @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true) APIFormatEnum apiFormat,
+                       @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true, defaultValue = "OSM") APIFormatEnum apiFormat,
                        @ApiParam(value = "API full url", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](41.822902,12.4057903,41.939445,12.5472503);out%20meta;") String apiUrl,
                        @ApiParam(value = "Source API authorization token") String sourceToken) {
 
@@ -64,7 +64,7 @@ public class NavitiaController extends BaseController {
                     @ApiParam(value = "Coordinates of starting point: latitude, longitude", required = true, example = "41.822902,12.4057903") String fromCoordinates,
                     @ApiParam(value = "Coordinates of the arrival point: latitude, longitude", required = true, example = "41.939445,12.5472503") String toCoordinates,
                     @ApiParam(value = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
-                    @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true) APIFormatEnum apiFormat,
+                    @ApiParam(value = "API format", allowableValues = "GeoJson, OSM, GTFS", required = true, defaultValue = "OSM") APIFormatEnum apiFormat,
                     @ApiParam(value = "API full url", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](41.822902,12.4057903,41.939445,12.5472503);out%20meta;") String apiUrl,
                     @ApiParam(value = "Source API authorization token") String sourceToken) {
         apiUrl = URLDecoder.decode(apiUrl, StandardCharsets.UTF_8);
