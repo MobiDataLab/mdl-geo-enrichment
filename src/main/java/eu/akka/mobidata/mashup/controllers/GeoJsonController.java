@@ -36,7 +36,7 @@ public class GeoJsonController extends BaseController {
     String enrichGeoJsonApi(@ApiParam(value = "Attributes to be enriched on the target api, separated with commas", required = true, example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
                             @ApiParam(value = "Url of the target API to be enriched", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String targetApiUrl,
                             @ApiParam(value = "Url of the source API to be used for enrichment", required = true, example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String sourceApiUrl,
-                            @ApiParam(value = "source API format", allowableValues = "GeoJson, OSM, GTFS", required = true) APIFormatEnum apiFormat,
+                            @ApiParam(value = "source API format", allowableValues = "GeoJson, OSM, GTFS", required = true, defaultValue = "OSM") APIFormatEnum apiFormat,
                             @ApiParam(value = "Target API authorization token") String targetToken,
                             @ApiParam(value = "Source API authorization token") String sourceToken) {
 
