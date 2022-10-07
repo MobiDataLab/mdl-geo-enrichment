@@ -281,12 +281,20 @@ public class GeoJsonManager {
 
     public void enrichGeoJsonWithProperties(String attributes, LinkedHashMap stopPoint, Geometry geoHere) {
         // get the closest feature/point to the stop point of the target api and enrich it
+        Object placeId = ((LinkedHashMap) stopPoint.get("properties")).get("id");
+        if (placeId == null) {
+            placeId = ((LinkedHashMap) stopPoint.get("properties")).get("stop_id");
+        }
         Object placeName = ((LinkedHashMap) stopPoint.get("properties")).get("name");
-        enrichPoint(placeName, geoHere, attributes, stopPoint, placeName, TargetAPIFormatEnum.GeoJson);
+        if (placeName == null) {
+            placeName = ((LinkedHashMap) stopPoint.get("properties")).get("stop_name");
+        }
+
+        enrichPoint(placeId, geoHere, attributes, stopPoint, placeName, TargetAPIFormatEnum.GeoJson);
     }
 
     private void enrichPoint(Object placeId, Geometry geometry, String attributes, LinkedHashMap stopPoint, Object stopPointName, TargetAPIFormatEnum apiFormatEnum) {
-        if (placeId != null) {
+        if (placeId != null && stopPointName != null) {
             simpleFeatureList.parallelStream()
                     .filter(feature ->
                             getFeatureName(feature) != null
