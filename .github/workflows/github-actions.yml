@@ -53,10 +53,8 @@ jobs:
       - name: Push the image to docker registy
         run: docker push wanam/${{ env.REPO }}:latest
       - name: Stop the container of the old image if running
-        run: docker stop $(docker ps -a -q) || true
+        run: docker stop mdl-geo-enrichment || true
       - name: Force remove the container if it is still running
-        run: docker rm -f $(docker ps -a -q) || true
-      - name: Remove old images
-        run: docker rmi $(docker images -q) || true # remove old images
+        run: docker rm -f mdl-geo-enrichment || true
       - name: Run new docker image
-        run: docker run -d -p 62080:80 -p 443:443 wanam/${{ env.REPO }} --pull=always
+        run: docker run --name mdl-geo-enrichment -d -p 62080:80 -p 443:443 wanam/${{ env.REPO }}
