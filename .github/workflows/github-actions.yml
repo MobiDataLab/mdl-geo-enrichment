@@ -57,4 +57,4 @@ jobs:
       - name: Force remove the container if it is still running
         run: docker rm -f mdl-geo-enrichment || true
       - name: Run new docker image
-        run: docker run --name mdl-geo-enrichment -d -p 62080:80 -p 443:443 wanam/${{ env.REPO }}
+        run: docker run --name mdl-geo-enrichment --restart always -d -p 62080:80 -p 443:443 wanam/${{ env.REPO }}

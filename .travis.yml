@@ -65,5 +65,5 @@ jobs:
       after_script:
         - docker stop mdl-geo-enrichment || true # stop the container of the old image if running
         - docker rm -f mdl-geo-enrichment || true # force remove the container if it is still running
-        - docker run --name mdl-geo-enrichment -d -p 62080:80 -p 443:443 wanam/$REPO
+        - docker run --name mdl-geo-enrichment --restart always -d -p 62080:80 -p 443:443 wanam/$REPO
         - docker logout
