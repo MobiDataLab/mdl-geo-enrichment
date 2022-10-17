@@ -48,9 +48,8 @@ public class RateLimitFilter implements Filter {
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
             String clientIpAddress = getClientIP((HttpServletRequest) servletRequest);
             if (isMaximumRequestsPerExpiryTimeExceeded(clientIpAddress)) {
-                httpServletResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                httpServletResponse.getWriter().write(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
-                LOGGER.debug("Too many requests for client ip address: {}!", clientIpAddress);
+                LOGGER.error("Too many requests for client ip address: {}!", clientIpAddress);
+                httpServletResponse.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
                 return;
             }
         }
