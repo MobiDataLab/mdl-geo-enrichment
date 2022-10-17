@@ -8,7 +8,7 @@ server:
     key-store-password: '@Kk4!Mob1d4ta'
   http:
     port: 80
-  requests-rate-limit: 5 # requests per minute
+  requests-rate-limit: 60 # requests per minute
 
 spring:
   profiles:
