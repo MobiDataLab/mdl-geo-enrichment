@@ -274,6 +274,7 @@ public class GeoJsonManager {
             Geometry geometry = GeometryTools.geometryFactory.createPoint(coordinate);
 
             enrichGeoJsonWithProperties(attributes, feature, geometry);
+
         });
 
         return targetApiContext.jsonString();

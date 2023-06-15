@@ -9,8 +9,8 @@ import eu.akka.mobidata.mashup.services.interfaces.IGtfsService;
 import eu.akka.mobidata.mashup.services.interfaces.IOsmService;
 import eu.akka.mobidata.mashup.util.GeoJsonManager;
 import eu.akka.mobidata.mashup.util.JsonParser;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
  * @author Mohamed.KARAMI
  */
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-@ApiResponses(value = {@ApiResponse(code = 429, message = "Too Many Requests")})
+@ApiResponses(value = {@ApiResponse(responseCode = "429", description = "Too Many Requests")})
 public class BaseController {
 
     @Autowired
