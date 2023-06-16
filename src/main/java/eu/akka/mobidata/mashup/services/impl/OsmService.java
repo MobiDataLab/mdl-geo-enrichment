@@ -22,15 +22,15 @@ import java.nio.file.Path;
 public class OsmService extends BaseService implements IOsmService {
 
     /**
-     * Finds and returns bus stops in geojson format.
+     * Finds and returns bus stops/lines in geojson format.
      *
-     * @return the bus stops if found, or null if not found
+     * @return the bus stops/lines if found, or null if not found
      */
-    @Cacheable("bus-stops-geojson")
-    public String getGeoJsonFromOsmBusStops(String url, String token) {
+    @Cacheable("osm-geojson")
+    public String getGeoJsonFromOsm(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
-            String navResponse = getJsonFromOsmBusStops(url, token);
+            String navResponse = getJsonFromOsm(url, token);
 
             // to be used to generate pojo classes based on json response
             // generateOsmPojoClasses(navResponse.getBody());
@@ -43,12 +43,12 @@ public class OsmService extends BaseService implements IOsmService {
     }
 
     /**
-     * Finds and returns bus stops in json format.
+     * Finds and returns bus stops/lines in json format.
      *
-     * @return the bus stops if found, or null if not found
+     * @return the bus stops/lines if found, or null if not found
      */
-    @Cacheable("bus-stops-json")
-    public String getJsonFromOsmBusStops(String url, String token) {
+    @Cacheable("osm-json")
+    public String getJsonFromOsm(String url, String token) {
         LOGGER.debug("baseURI: {}", url);
         try {
             HttpHeaders header = new HttpHeaders();

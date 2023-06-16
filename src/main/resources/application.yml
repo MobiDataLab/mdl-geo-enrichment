@@ -1,6 +1,5 @@
 server:
   port: 443
-  connection-timeout: 300
   ssl:
     enabled: true
     keyStoreType: PKCS12

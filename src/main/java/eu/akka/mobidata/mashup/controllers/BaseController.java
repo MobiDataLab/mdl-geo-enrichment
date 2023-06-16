@@ -42,8 +42,8 @@ public class BaseController {
     protected String getEnrichedData(TargetAPIFormatEnum targetApiFormat, APIFormatEnum apiFormat, String apiUrl, String sourceToken, String data, String enrichAttributes) {
         String busStops;
         if (APIFormatEnum.OSM.equals(apiFormat)) {
-            // get bus stops for the same coordinates from osm
-            busStops = osmService.getGeoJsonFromOsmBusStops(apiUrl, sourceToken);
+            // get bus stops/lines for the same coordinates from osm
+            busStops = osmService.getGeoJsonFromOsm(apiUrl, sourceToken);
         } else if (APIFormatEnum.GeoJson.equals(apiFormat)) {
             // get bus stops for the same coordinates
             busStops = geoJsonService.getGeoJsonBusStops(apiUrl, sourceToken);
