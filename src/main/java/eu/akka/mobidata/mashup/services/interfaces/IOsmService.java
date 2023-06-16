@@ -8,20 +8,20 @@ package eu.akka.mobidata.mashup.services.interfaces;
 public interface IOsmService {
 
     /**
-     * Finds and returns bus stops in geojson format.
+     * Finds and returns bus stops/lines in geojson format.
      *
      * @param url         url
      * @param token source api Token
-     * @return the bus stops if found, or null if not found
+     * @return the bus stops/lines if found, or null if not found
      */
-    String getGeoJsonFromOsmBusStops(String url, String token);
+    String getGeoJsonFromOsm(String url, String token);
 
     /**
-     * Finds and returns bus stops in json format.
+     * Finds and returns bus stops/lines in json format.
      *
      * @param url         url
      * @param token source api Token
-     * @return the bus stops if found, or null if not found
+     * @return the bus stops/lines if found, or null if not found
      */
-    String getJsonFromOsmBusStops(String url, String token);
+    String getJsonFromOsm(String url, String token);
 }

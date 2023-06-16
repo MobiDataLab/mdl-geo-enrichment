@@ -38,13 +38,35 @@ public class OsmController extends BaseController {
         sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
 
         // Get bus stops from open street map api
-        String routes = osmService.getJsonFromOsmBusStops(targetApiUrl, targetToken);
+        String routes = osmService.getJsonFromOsm(targetApiUrl, targetToken);
 
         if (routes == null) {
             throw new MobilityDataNotFoundException("No Bus stops found!");
         }
 
         return getEnrichedData(TargetAPIFormatEnum.OSM, apiFormat, sourceApiUrl, sourceToken, routes, enrichAttributes);
+    }
+
+    @RequestMapping(value = "enrichOsmLineApi", method = RequestMethod.GET)
+    public @ResponseBody
+    String enrichOsmLineApi(@Parameter(description = "Attributes to be enriched on the target api, separated with commas", example = "wheelchair, shelter, tactile_paving, bench, bin, lit") String enrichAttributes,
+                        @Parameter(description = "Url of the target API to be enriched", example = "https://overpass.kumi.systems/api/interpreter?data=[out:json][timeout:25];(node[public_transport=stop_position][subway=yes](48.8345631,2.2433581,48.8775033,2.4400646);way[railway=subway](48.8345631,2.2433581,48.8775033,2.4400646););out%20meta;") String targetApiUrl,
+                        @Parameter(description = "Url of the source API to be used for enrichment", example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String sourceApiUrl,
+                        @Parameter(description = "source API format", schema = @Schema(description = "var 1", type = "string", allowableValues = {"GeoJson", "OSM", "GTFS"}, defaultValue = "OSM")) APIFormatEnum apiFormat,
+                        @Nullable @Parameter(description = "Target API authorization token") String targetToken,
+                        @Nullable @Parameter(description = "Source API authorization token") String sourceToken) {
+
+        targetApiUrl = URLDecoder.decode(targetApiUrl, StandardCharsets.UTF_8);
+        sourceApiUrl = URLDecoder.decode(sourceApiUrl, StandardCharsets.UTF_8);
+
+        // Get transport lines from open street map api
+        String lines = osmService.getJsonFromOsm(targetApiUrl, targetToken);
+
+        if (lines == null) {
+            throw new MobilityDataNotFoundException("No public transport lines found!");
+        }
+        // @TODO enrich osm / geojson lines
+        return getEnrichedData(TargetAPIFormatEnum.OSM, apiFormat, sourceApiUrl, sourceToken, lines, enrichAttributes);
     }
 
     /**
@@ -75,6 +97,6 @@ public class OsmController extends BaseController {
     String convertOsmApiToGeoJson(@Parameter(description = "Target api url (Only OSM api format is supported!)", example = "https://overpass.kumi.systems/api/interpreter?data=[out:json];node[highway=bus_stop](48.8345631,2.2433581,48.8775033,2.4400646);out%20meta;") String osmApiUrl,
                                   @Nullable @Parameter(description = "API authorization token") String token) {
         osmApiUrl = URLDecoder.decode(osmApiUrl, StandardCharsets.UTF_8);
-        return osmService.getGeoJsonFromOsmBusStops(osmApiUrl, token);
+        return osmService.getGeoJsonFromOsm(osmApiUrl, token);
     }
 }
