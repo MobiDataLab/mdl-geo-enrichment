@@ -45,8 +45,9 @@ A docker image is built automatically upon main branch and pushed to docker hub 
 ```
 docker run -d -p 80:80 -p 443:443 wanam/mdl-geo-enrichment:latest --pull=always
 ```
+/!\ A selfsigned certificate is used for TLS testing purposes, do not use it for production! An authority cetificate will be needed for production use.
 
 ## Browse Swagger UI
-Once the application is up, you can browse the apis on your local server through [HTTP](http://localhost/swagger-ui/) and [HTTPS](https://localhost/swagger-ui/)
+Once the application is up, you can browse the apis on your local server through [HTTP](http://localhost/swagger-ui/index.html) and [HTTPS](https://localhost/swagger-ui/index.html)
 
 Enriched data will be stored on a separate attribute 'enriched_properties' for each stop point on the api response.
